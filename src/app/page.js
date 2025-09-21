@@ -1,103 +1,73 @@
+// app/page.tsx  (Next.js 13+ with App Router)
 import Image from "next/image";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const cities = [
+    "Raipur",
+    "Bhilai",
+    "Bilaspur",
+    "Durg",
+    "Korba",
+    "Raigarh",
+    "Jagdalpur",
+    "Ambikapur",
+    "Kawardha",
+    "Chirmiri"
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const homeTypes = ["Apartment", "Villa", "Independent House", "Studio", "Penthouse"];
+  const priceRanges = ["₹5L - ₹20L", "₹20L - ₹50L", "₹50L - ₹1Cr", "₹1Cr - ₹2Cr", "₹2Cr+"];
+  
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="flex flex-col-reverse md:flex-row items-center px-6 md:px-16 py-10 md:py-16">
+        {/* Text Content */}
+        <div className="flex-1 text-center md:text-left space-y-6 mt-8 md:mt-0">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-blue-600 leading-tight">
+            Find Your <br /> Perfect Home
+          </h1>
+          <p className="text-blue-500 font-medium">
+            YOUR PROPERTY, OUR PRIORITY
+          </p>
+
+          {/* Search Bar */}
+          <div className="bg-blue-600 text-white rounded-xl flex flex-col md:flex-row items-center p-4 space-y-4 md:space-y-0 md:space-x-4 shadow-lg">
+            <select className="bg-blue-600 border border-white/30 px-4 py-2 rounded-md focus:outline-none">
+              <option>Location</option>
+              {cities.map((city) => (
+                <option key={city}>{city}</option>
+              ))}
+            </select>
+            <select className="bg-blue-600 border border-white/30 px-4 py-2 rounded-md focus:outline-none">
+              <option>Home Type</option>
+              {homeTypes.map((type) => (
+                <option key={type}>{type}</option>
+              ))}
+            </select>
+            <select className="bg-blue-600 border border-white/30 px-4 py-2 rounded-md focus:outline-none">
+              <option>Price Range</option>
+              {priceRanges.map((range) => (
+                <option key={range}>{range}</option>
+              ))}
+            </select>
+            <button className="bg-white text-blue-600 font-bold px-6 py-2 rounded-md hover:bg-gray-100 transition">
+              Search
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+
+        {/* Hero Image */}
+        <div className="flex-1 flex justify-center md:justify-end">
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src="/images/helo.png" // apni image "public/hero.jpg" me daal dena
+            alt="Property"
+            width={900}
+            height={600}
+            className="rounded-lg shadow-xl object-cover w-full max-w-md md:max-w-lg"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </section>
     </div>
   );
 }
