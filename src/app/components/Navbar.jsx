@@ -12,7 +12,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-md fixed w-full top-0 left-0 z-50">
+    <nav className="bg-white shadow-md fixed w-full top-0 left-0 z-50 ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navbar flex */}
         <div className="flex items-center justify-between h-16 relative">
@@ -29,9 +29,9 @@ export default function Navbar() {
           </Link>
 
           {/* Search Bar (Center - perfectly centered) */}
-          <div className="hidden md:flex absolute inset-0 items-center justify-center">
+          <div className="hidden md:flex absolute inset-0 items-center  justify-center">
             <div className="w-[50%]">
-              <ModernSearchBar />
+              <ModernSearchBar/>
             </div>
           </div>
 

@@ -30,7 +30,7 @@ export default function ModernSearchBar() {
 
   return (
     <div className="flex justify-center mt-10">
-      <div className="flex items-center bg-white shadow-md rounded-full px-4 py-2 w-full max-w-2xl space-x-3">
+      <div className="flex items-center bg-white shadow-md rounded-full px-4 py-2  w-full max-w-2xl space-x-3">
         {/* Location */}
         <div className="relative">
           <button
@@ -46,7 +46,7 @@ export default function ModernSearchBar() {
               {cities.map((city) => (
                 <div
                   key={city}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="px-4 py-2 hover:bg-blue-400 text-black cursor-pointer"
                   onClick={() => {
                     setSelectedCity(city);
                     setShowCities(false);
