@@ -29,8 +29,9 @@ export default function ModernSearchBar() {
   const [selectedCategory, setSelectedCategory] = useState("Category");
 
   return (
-    <div className="flex justify-center mt-10">
-      <div className="flex items-center bg-white shadow-md rounded-full px-4 py-2  w-full max-w-2xl space-x-3">
+    <div className="flex justify-center">
+      <div className="flex items-center bg-white rounded-full px-4 py-2 w-full max-w-2xl space-x-3 
+                      shadow-xl ring-1 ring-blue-400/20 hover:ring-blue-400/40 transition-all duration-300">
         {/* Location */}
         <div className="relative">
           <button
@@ -42,7 +43,7 @@ export default function ModernSearchBar() {
           </button>
 
           {showCities && (
-            <div className="absolute top-12 left-0 w-40 bg-white border rounded-lg shadow-md z-10">
+            <div className="absolute top-12 left-0 w-40 bg-white border rounded-lg shadow-lg z-10">
               {cities.map((city) => (
                 <div
                   key={city}
@@ -83,7 +84,7 @@ export default function ModernSearchBar() {
         </div>
 
         {/* Search Button */}
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-md">
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300">
           Search
         </button>
       </div>

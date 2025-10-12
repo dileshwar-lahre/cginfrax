@@ -12,83 +12,69 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-md fixed w-full top-0 left-0 z-50 ">
+    <nav className="bg-white shadow-md fixed w-full top-0 left-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Navbar flex */}
-        <div className="flex items-center justify-between h-16 relative">
+        {/* Navbar main container */}
+        <div className="flex items-center justify-between h-20 relative">
           
-          {/* Logo (Left) */}
+          {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
               src="/images/cginfrax_logo.png"
               alt="CGINFRAX Logo"
-              width={140}
-              height={70}
+              width={160}
+              height={90}
               priority
+              className="object-contain"
             />
           </Link>
 
-          {/* Search Bar (Center - perfectly centered) */}
-          <div className="hidden md:flex absolute inset-0 items-center  justify-center">
-            <div className="w-[50%]">
-              <ModernSearchBar/>
+          {/* Search Bar (centered properly) */}
+          <div className="hidden md:flex absolute inset-0 items-center justify-center">
+            <div className="w-[55%]">
+              <ModernSearchBar />
             </div>
           </div>
 
-          {/* Right Side: Sign Up + Menu Icon */}
+          {/* Right side buttons */}
           <div className="flex items-center space-x-4 relative z-10">
-            <div className="hidden md:flex">
-              <Link
-                href="/signup"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Sign Up
-              </Link>
-            </div>
+            <Link
+              href="/signup"
+              className="hidden md:inline-block px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 shadow-sm"
+            >
+              Sign Up
+            </Link>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="text-gray-700 focus:outline-none"
+              className="text-gray-800 focus:outline-none hover:text-blue-600 transition-all"
             >
-              {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+              {menuOpen ? <FiX size={30} /> : <FiMenu size={30} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Slide Menu */}
+      {/* Mobile Slide Menu */}
       {menuOpen && (
-        <div className="bg-white fixed top-16 left-0 w-full h-[calc(100vh-4rem)] overflow-y-auto shadow-lg">
+        <div className="bg-white fixed top-20 left-0 w-full h-[calc(100vh-5rem)] overflow-y-auto shadow-lg border-t">
           <div className="px-6 py-6 space-y-6 flex flex-col text-lg">
-            <Link
-              href="/"
-              className="text-gray-700 hover:text-blue-600 transition"
-              onClick={() => setMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href="/about"
-              className="text-gray-700 hover:text-blue-600 transition"
-              onClick={() => setMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link
-              href="/services"
-              className="text-gray-700 hover:text-blue-600 transition"
-              onClick={() => setMenuOpen(false)}
-            >
-              Services
-            </Link>
-            <Link
-              href="/contact"
-              className="text-gray-700 hover:text-blue-600 transition"
-              onClick={() => setMenuOpen(false)}
-            >
-              Contact
-            </Link>
+            {[
+              { name: "Home", href: "/" },
+              { name: "About", href: "/about" },
+              { name: "Services", href: "/services" },
+              { name: "Contact", href: "/contact" },
+            ].map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-gray-700 hover:text-blue-600 transition"
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
 
-            {/* Dropdown */}
+            {/* Dropdown Section */}
             <div>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -96,7 +82,7 @@ export default function Navbar() {
               >
                 Others{" "}
                 <FiChevronDown
-                  className={`ml-1 transform ${
+                  className={`ml-1 transform transition-transform ${
                     dropdownOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -121,10 +107,10 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Sign Up (Mobile) */}
+            {/* Mobile Sign Up Button */}
             <Link
               href="/signup"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center shadow-sm"
               onClick={() => setMenuOpen(false)}
             >
               Sign Up

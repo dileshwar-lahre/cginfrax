@@ -1,82 +1,104 @@
-
+"use client";
 import { useState } from "react";
-import Link from "next/link";
+import { X } from "lucide-react"; // npm install lucide-react
 
-export default function LoginPage() {
-  const [form, setForm] = useState({
+export default function SignupPopup() {
+  const [open, setOpen] = useState(true);
+  const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Login Data:", form);
-    // 👇 Yahan API call ya NextAuth logic likh sakte ho
+    alert("Signup successful!");
+    setOpen(false);
   };
+
+  if (!open) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-4">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-white text-center mb-6">
-          Welcome Back
-        </h2>
-        <p className="text-center text-gray-200 mb-8 text-sm">
-          Please log in to continue
-        </p>
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 px-4">
+      <div className="relative bg-white w-full max-w-sm sm:max-w-md rounded-2xl shadow-2xl p-6 animate-fadeIn transition-all duration-300">
+        {/* Close Button */}
+        <button
+          onClick={() => setOpen(false)}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition"
+          aria-label="Close"
+        >
+          <X className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Title */}
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">
+          Create an Account
+        </h2>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-white text-sm mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+              placeholder="Enter your name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
             <input
               type="email"
               name="email"
-              value={form.email}
+              value={formData.email}
               onChange={handleChange}
-              placeholder="you@example.com"
               required
-              className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-400"
+              className="mt-1 w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+              placeholder="Enter your email"
             />
           </div>
 
           <div>
-            <label className="block text-white text-sm mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
             <input
               type="password"
               name="password"
-              value={form.password}
+              value={formData.password}
               onChange={handleChange}
-              placeholder="********"
               required
-              className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-400"
+              className="mt-1 w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+              placeholder="Enter your password"
             />
-          </div>
-
-          <div className="flex justify-between text-sm text-gray-200">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="accent-pink-500" /> Remember me
-            </label>
-            <Link href="#" className="hover:underline">
-              Forgot Password?
-            </Link>
           </div>
 
           <button
             type="submit"
-            className="w-full py-2 mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
+            className="w-full bg-blue-600 text-white font-semibold py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-all duration-200"
           >
-            Log In
+            Sign Up
           </button>
         </form>
 
-        <p className="text-center text-gray-200 mt-6 text-sm">
-          Don’t have an account?{" "}
-          <Link href="/signup" className="text-white font-semibold hover:underline">
-            Sign Up
-          </Link>
+        <p className="text-center text-sm text-gray-600 mt-5">
+          Already have an account?{" "}
+          <a href="/login" className="text-blue-600 hover:underline">
+            Log in
+          </a>
         </p>
       </div>
     </div>
