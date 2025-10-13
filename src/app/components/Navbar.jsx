@@ -22,8 +22,8 @@ export default function Navbar() {
             <Image
               src="/images/cginfrax_logo.png"
               alt="CGINFRAX Logo"
-              width={160}
-              height={90}
+              width={150}
+              height={80}
               priority
               className="object-contain"
             />

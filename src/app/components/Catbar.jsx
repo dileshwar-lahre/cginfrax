@@ -8,8 +8,8 @@ import { usePathname } from "next/navigation";
 const categories = [
   { href: "/", img: "/images/homeicon.png", label: "House" },
   { href: "/room", img: "/images/roomicon.png", label: "Room" },
-  { href: "/land", img: "/images/land.png", label: "Land" },
-  { href: "/construction", img: "/images/construction.png", label: "Construction" },
+  { href: "/land", img: "/images/landlo.png", label: "Land" },
+  { href: "/construction", img: "/images/constructionlogo.png", label: "Construction" },
 ];
 
 const Catbar = () => {
