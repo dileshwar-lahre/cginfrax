@@ -7,9 +7,9 @@ import { usePathname } from "next/navigation";
 
 const categories = [
   { href: "/", img: "/images/homeicon.png", label: "House" },
-  { href: "/room", img: "/images/roomicon.png", label: "Room" },
-  { href: "/land", img: "/images/landlo.png", label: "Land" },
-  { href: "/construction", img: "/images/constructionlogo.png", label: "Construction" },
+  { href: "/room", img: "/images/roomicon2.png", label: "Room" },
+  { href: "/land", img: "/images/landlo.jpg", label: "Land" },
+  { href: "/construction", img: "/images/construction1.png", label: "Construction" },
 ];
 
 const Catbar = () => {
@@ -25,14 +25,14 @@ const Catbar = () => {
             href={cat.href}
             className="flex flex-col items-center group"
           >
-            {/* Icon */}
-            <div className="transition-transform duration-200 group-hover:scale-110 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16">
+            {/* Icon - fixed uniform size for all */}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 flex items-center justify-center">
               <Image
                 src={cat.img}
                 alt={cat.label}
-                width={64} // uniform size for all icons
+                width={64}
                 height={64}
-                className="object-contain"
+                className="object-contain w-full h-full transition-transform duration-200 group-hover:scale-110"
                 priority
               />
             </div>
