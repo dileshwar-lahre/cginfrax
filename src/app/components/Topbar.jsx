@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
-import Catbar from "./Catbar";
+// import Catbar from "./Catbar";
 import PhoneSearchBar from "./Phonesearchbar";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -46,7 +46,7 @@ const Topbar = () => {
 
       {/* Catbar with padding below fixed header */}
       <div className="pt-20 bg-gray-50 border-t border-gray-200 shadow-sm">
-        <Catbar />
+        {/* <Catbar /> */}
       </div>
     </header>
   );
