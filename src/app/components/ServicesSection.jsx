@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, Hammer, Map, BedDouble, MapPin, CheckCircle, Phone, ArrowRight, Star, ShieldCheck, Users } from 'lucide-react';
+import { Home, Hammer, Map, BedDouble, CheckCircle, Phone, ArrowRight, Star, ShieldCheck } from 'lucide-react';
 
 // --- Animations ---
 const fadeInUp = {
@@ -14,12 +14,13 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.15 } }
 };
 
-export default function ServicesPage() {
+export function ServicesSection() {
   return (
-    <main className="bg-white min-h-screen font-sans selection:bg-orange-100 selection:text-orange-600">
+    // 👇 Yaha Maine <main> hata ke <section id="services"> laga diya hai
+    <section id="services" className="bg-white min-h-screen font-sans selection:bg-orange-100 selection:text-orange-600">
       
       {/* --- HERO SECTION (Cinematic Look) --- */}
-      <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-gray-900">
+      <div className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-gray-900">
         
         {/* Animated Background Image */}
         <motion.div 
@@ -40,7 +41,7 @@ export default function ServicesPage() {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-10">
-          <motion.div initial="hidden" animate="visible" variants={fadeInUp}>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
             <span className="inline-block py-1 px-3 rounded-full bg-orange-500/20 border border-orange-500/50 text-orange-400 text-sm font-semibold tracking-wider mb-6 backdrop-blur-md">
               PREMIUM REAL ESTATE SERVICES
             </span>
@@ -65,7 +66,7 @@ export default function ServicesPage() {
             </div>
           </motion.div>
         </div>
-      </section>
+      </div>
 
       {/* --- STATS STRIP (Modern Floating Bar) --- */}
       <div className="relative z-20 -mt-16 px-6">
@@ -90,7 +91,7 @@ export default function ServicesPage() {
       </div>
 
       {/* --- SERVICES SECTION (Hover Cards) --- */}
-      <section className="py-24 px-6 bg-gray-50">
+      <div className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">World-Class Services</h2>
@@ -119,7 +120,6 @@ export default function ServicesPage() {
               >
                 <div className={`absolute top-0 left-0 w-full h-1 ${service.color} transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}></div>
                 <div className={`w-14 h-14 rounded-2xl ${service.color} bg-opacity-10 flex items-center justify-center mb-6 text-white`}>
-                   {/* Icon Color Correction */}
                    <service.icon className={`text-gray-900 group-hover:text-${service.color.split('-')[1]}-600 transition-colors`} size={28} />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
@@ -131,10 +131,10 @@ export default function ServicesPage() {
             ))}
           </motion.div>
         </div>
-      </section>
+      </div>
 
       {/* --- WHY CHOOSE US (Modern Grid) --- */}
-      <section className="py-24 bg-gray-900 text-white overflow-hidden">
+      <div className="py-24 bg-gray-900 text-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
           {/* Content */}
@@ -199,10 +199,10 @@ export default function ServicesPage() {
           </div>
 
         </div>
-      </section>
+      </div>
 
       {/* --- CITIES MARQUEE (Styled List) --- */}
-      <section className="py-20 border-b border-gray-100">
+      <div className="py-20 border-b border-gray-100">
         <div className="max-w-7xl mx-auto text-center px-6">
           <p className="text-gray-500 font-medium mb-8 uppercase tracking-widest text-sm">We are present in</p>
           <div className="flex flex-wrap justify-center gap-3 md:gap-6">
@@ -212,14 +212,14 @@ export default function ServicesPage() {
               </span>
             ))}
              <span className="px-6 py-3 rounded-full bg-orange-50 text-orange-700 font-semibold border border-orange-100">
-                + All CG Districts
-              </span>
+               + All CG Districts
+             </span>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* --- CTA SECTION --- */}
-      <section className="py-24 px-6 bg-white">
+      <div className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto bg-gradient-to-br from-orange-600 to-red-600 rounded-[2.5rem] p-10 md:p-16 text-center text-white shadow-2xl relative overflow-hidden">
           
           {/* Decorative Circles */}
@@ -241,8 +241,8 @@ export default function ServicesPage() {
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-    </main>
+    </section>
   );
 }
