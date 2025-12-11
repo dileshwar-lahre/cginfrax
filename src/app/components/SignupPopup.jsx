@@ -1,11 +1,11 @@
+// File: src/app/components/SignupPopup.jsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { X, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 
-export default function SignupPopup() {
-  const [open, setOpen] = useState(true);
+export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +18,17 @@ export default function SignupPopup() {
     password: "",
     confirmPassword: "",
   });
+
+  // Logic: Jab modal band ho, form reset karein
+  useEffect(() => {
+    if (!isOpen) {
+      setTimeout(() => {
+        setStep(1);
+        setOtp("");
+        setFormData({ name: "", mobile: "", password: "", confirmPassword: "" });
+      }, 300);
+    }
+  }, [isOpen]);
 
   // OTP Timer Logic
   useEffect(() => {
@@ -74,7 +85,7 @@ export default function SignupPopup() {
       }
       console.log("Signup Completed:", formData);
       alert("Account created successfully!");
-      setOpen(false);
+      onClose();
     }
   };
 
@@ -84,26 +95,26 @@ export default function SignupPopup() {
     alert("OTP resent!");
   };
 
-  if (!open) return null;
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 px-3">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative animate-fadeIn">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[60] px-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative animate-fadeIn scale-100 transition-all">
         {/* Close Button */}
         <button
-          onClick={() => setOpen(false)}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition"
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-red-500 bg-gray-100 hover:bg-red-50 p-2 rounded-full transition-all"
         >
-          <X size={22} />
+          <X size={20} />
         </button>
 
         {/* Header */}
-        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
           {step === 1 && "Create Account"}
           {step === 2 && "Verify OTP"}
           {step === 3 && "Set Password"}
         </h2>
-        <p className="text-sm text-gray-500 text-center mb-6">
+        <p className="text-sm text-gray-500 text-center mb-8">
           {step === 1 && "Start by entering your details"}
           {step === 2 && `OTP sent to +91 ${formData.mobile}`}
           {step === 3 && "Almost done! Set your password"}
@@ -115,7 +126,7 @@ export default function SignupPopup() {
           {step === 1 && (
             <>
               <div>
-                <label className="block text-gray-700 text-sm mb-1">
+                <label className="block text-gray-700 text-sm font-medium mb-1">
                   Full Name
                 </label>
                 <input
@@ -125,12 +136,12 @@ export default function SignupPopup() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Enter your full name"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700 text-sm mb-1">
+                <label className="block text-gray-700 text-sm font-medium mb-1">
                   Mobile Number
                 </label>
                 <input
@@ -140,40 +151,47 @@ export default function SignupPopup() {
                   value={formData.mobile}
                   onChange={handleChange}
                   placeholder="Enter 10-digit mobile number"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
                   maxLength={10}
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition"
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95"
               >
                 Send OTP
               </button>
 
               {/* Continue with Google */}
-              <div className="mt-4">
-                <button
-                  type="button"
-                  className="w-full flex items-center justify-center gap-2 border rounded-lg py-2 hover:bg-gray-100 transition"
-                >
-                  <FcGoogle size={22} />
-                  <span className="text-gray-700 font-medium">
-                    Continue with Google
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-gray-400">
+                    Or continue with
                   </span>
-                </button>
+                </div>
               </div>
 
-              {/* Login link */}
-              <p className="text-center text-sm text-gray-600 mt-3">
+              <button
+                type="button"
+                className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 hover:bg-gray-50 transition-all"
+              >
+                <FcGoogle size={22} />
+                <span className="text-gray-700 font-medium">Google</span>
+              </button>
+
+              <p className="text-center text-sm text-gray-600 mt-2">
                 Already have an account?{" "}
-                <a
-                  href="/login"
-                  className="text-blue-600 hover:underline font-medium"
+                <button
+                  type="button"
+                  onClick={onSwitchToLogin}
+                  className="text-orange-600 hover:underline font-bold"
                 >
                   Login
-                </a>
+                </button>
               </p>
             </>
           )}
@@ -182,8 +200,8 @@ export default function SignupPopup() {
           {step === 2 && (
             <>
               <div>
-                <label className="block text-gray-700 text-sm mb-2">
-                  Enter 6-Digit OTP
+                <label className="block text-gray-700 text-sm font-medium mb-4 text-center">
+                  Enter the code sent to your mobile
                 </label>
                 <div className="flex justify-center gap-2">
                   {Array(6)
@@ -201,7 +219,7 @@ export default function SignupPopup() {
                           setOtp(newOtp.slice(0, 6));
                           if (val && i < 5) e.target.nextSibling?.focus();
                         }}
-                        className="w-10 h-10 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-lg"
+                        className="w-12 h-12 text-center border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xl font-bold transition-all"
                       />
                     ))}
                 </div>
@@ -209,7 +227,7 @@ export default function SignupPopup() {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition"
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95"
               >
                 Verify OTP
               </button>
@@ -217,14 +235,16 @@ export default function SignupPopup() {
               <p className="text-center text-sm text-gray-600 mt-2">
                 Didn’t get the code?{" "}
                 {!resendActive ? (
-                  <span className="text-gray-500">Resend in {timer}s</span>
+                  <span className="text-gray-400 font-medium">
+                    Resend in {timer}s
+                  </span>
                 ) : (
                   <button
                     type="button"
                     onClick={handleResend}
-                    className="text-blue-600 hover:underline"
+                    className="text-orange-600 hover:underline font-bold"
                   >
-                    Resend
+                    Resend Now
                   </button>
                 )}
               </p>
@@ -235,7 +255,7 @@ export default function SignupPopup() {
           {step === 3 && (
             <>
               <div className="relative">
-                <label className="block text-gray-700 text-sm mb-1">
+                <label className="block text-gray-700 text-sm font-medium mb-1">
                   Password
                 </label>
                 <input
@@ -245,19 +265,19 @@ export default function SignupPopup() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Create a strong password"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                 </button>
               </div>
 
               <div className="relative">
-                <label className="block text-gray-700 text-sm mb-1">
+                <label className="block text-gray-700 text-sm font-medium mb-1">
                   Confirm Password
                 </label>
                 <input
@@ -267,14 +287,12 @@ export default function SignupPopup() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Re-enter password"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
                 />
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
-                  className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
                 >
                   {showConfirmPassword ? (
                     <Eye size={20} />
@@ -286,7 +304,7 @@ export default function SignupPopup() {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-green-500/30 transition-all active:scale-95"
               >
                 Complete Signup
               </button>

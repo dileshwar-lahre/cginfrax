@@ -15,8 +15,40 @@ const stagger = {
 };
 
 export function ServicesSection() {
+
+  // --- Services Data with Images ---
+  const services = [
+    { 
+      icon: Hammer, 
+      title: "Construction", 
+      desc: "Premium material ke saath majboot ghar.", 
+      color: "bg-orange-500",
+      imgUrl: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1931&auto=format&fit=crop"
+    },
+    { 
+      icon: Map, 
+      title: "Land & Plots", 
+      desc: "Raipur & Bhilai mein prime locations.", 
+      color: "bg-green-500",
+      imgUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2032&auto=format&fit=crop" 
+    },
+    { 
+      icon: Home, 
+      title: "Interiors", 
+      desc: "Luxury designs jo aapke budget mein fit hon.", 
+      color: "bg-blue-500",
+      imgUrl: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop"
+    },
+    { 
+      icon: BedDouble, 
+      title: "PG & Rooms", 
+      desc: "Safe aur fully furnished rental rooms.", 
+      color: "bg-purple-500",
+      imgUrl: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop"
+    },
+  ];
+
   return (
-    // 👇 Yaha Maine <main> hata ke <section id="services"> laga diya hai
     <section id="services" className="bg-white min-h-screen font-sans selection:bg-orange-100 selection:text-orange-600">
       
       {/* --- HERO SECTION (Cinematic Look) --- */}
@@ -77,10 +109,10 @@ export function ServicesSection() {
           className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center border border-gray-100"
         >
           {[
-            { label: 'Happy Families', value: '1,200+' },
-            { label: 'Projects Done', value: '450+' },
-            { label: 'Years Serving', value: '12+' },
-            { label: 'Cities Covered', value: '15+' },
+            { label: 'Happy Families', value: '+' },
+            { label: 'Projects Done', value: '+' },
+            { label: 'Years Serving', value: '+' },
+            { label: 'Cities Covered', value: '+' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center">
               <h3 className="text-3xl md:text-4xl font-bold text-gray-900">{stat.value}</h3>
@@ -90,7 +122,7 @@ export function ServicesSection() {
         </motion.div>
       </div>
 
-      {/* --- SERVICES SECTION (Hover Cards) --- */}
+      {/* --- SERVICES SECTION (UPDATED WITH IMAGES) --- */}
       <div className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -107,26 +139,37 @@ export function ServicesSection() {
             viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            {[
-              { icon: Hammer, title: "Construction", desc: "Premium material ke saath majboot ghar.", color: "bg-orange-500" },
-              { icon: Map, title: "Land & Plots", desc: "Raipur & Bhilai mein prime locations.", color: "bg-green-500" },
-              { icon: Home, title: "Interiors", desc: "Luxury designs jo aapke budget mein fit hon.", color: "bg-blue-500" },
-              { icon: BedDouble, title: "PG & Rooms", desc: "Safe aur fully furnished rental rooms.", color: "bg-purple-500" },
-            ].map((service, idx) => (
+            {services.map((service, idx) => (
               <motion.div 
                 key={idx}
                 variants={fadeInUp}
-                className="group bg-white p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-2 relative overflow-hidden"
+                // 'p-0' added here to let image go full width
+                className="group bg-white p-0 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-2 relative overflow-hidden"
               >
-                <div className={`absolute top-0 left-0 w-full h-1 ${service.color} transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}></div>
-                <div className={`w-14 h-14 rounded-2xl ${service.color} bg-opacity-10 flex items-center justify-center mb-6 text-white`}>
-                   <service.icon className={`text-gray-900 group-hover:text-${service.color.split('-')[1]}-600 transition-colors`} size={28} />
+                {/* Image Area */}
+                <div className="h-48 w-full overflow-hidden">
+                   <img 
+                     src={service.imgUrl} 
+                     alt={service.title} 
+                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                   />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                <p className="text-gray-500 leading-relaxed mb-6">{service.desc}</p>
-                <a href="#" className="inline-flex items-center text-sm font-bold text-gray-900 hover:text-orange-600 transition-colors">
-                  Explore Now <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </a>
+
+                {/* Content Area with Negative Margin for Icon */}
+                <div className="p-8 relative">
+                    <div className={`absolute top-0 left-0 w-full h-1 ${service.color} transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}></div>
+                    
+                    {/* Icon Bubble */}
+                    <div className={`w-14 h-14 rounded-2xl ${service.color} shadow-lg -mt-14 relative z-10 flex items-center justify-center mb-6 text-white`}>
+                       <service.icon className="text-white" size={28} />
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
+                    <p className="text-gray-500 leading-relaxed mb-6">{service.desc}</p>
+                    <a href="#" className="inline-flex items-center text-sm font-bold text-gray-900 hover:text-orange-600 transition-colors">
+                      Explore Now <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                </div>
               </motion.div>
             ))}
           </motion.div>
@@ -175,27 +218,27 @@ export function ServicesSection() {
 
           {/* Visual Image Grid */}
           <div className="relative">
-             <div className="absolute -inset-4 bg-orange-500 rounded-full blur-3xl opacity-20"></div>
-             <motion.div 
-               initial={{ opacity: 0, scale: 0.9 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               viewport={{ once: true }}
-               className="relative grid grid-cols-2 gap-4"
-             >
-                <img src="https://images.unsplash.com/photo-1600596542815-2a429b08e334?q=80&w=2075&auto=format&fit=crop" className="rounded-2xl object-cover h-64 w-full shadow-lg translate-y-8" alt="House" />
-                <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop" className="rounded-2xl object-cover h-64 w-full shadow-lg" alt="Interior" />
-                
-                {/* Floating Badge */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-gray-900 p-4 rounded-xl shadow-2xl flex items-center gap-3 whitespace-nowrap z-10">
-                  <div className="bg-green-100 p-2 rounded-full text-green-600">
-                    <Star fill="currentColor" size={20} />
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg">4.9/5 Rating</p>
-                    <p className="text-xs text-gray-500">From 500+ Clients</p>
-                  </div>
-                </div>
-             </motion.div>
+              <div className="absolute -inset-4 bg-orange-500 rounded-full blur-3xl opacity-20"></div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="relative grid grid-cols-2 gap-4"
+              >
+                 <img src="https://plus.unsplash.com/premium_photo-1661915661139-5b6a4e4a6fcc?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8aG91c2V8ZW58MHx8MHx8fDA%3D" className="rounded-2xl object-cover h-64 w-full shadow-lg translate-y-8" alt="House" />
+                 <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop" className="rounded-2xl object-cover h-64 w-full shadow-lg" alt="Interior" />
+                 
+                 {/* Floating Badge */}
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-gray-900 p-4 rounded-xl shadow-2xl flex items-center gap-3 whitespace-nowrap z-10">
+                   <div className="bg-green-100 p-2 rounded-full text-green-600">
+                     <Star fill="currentColor" size={20} />
+                   </div>
+                   <div>
+                     <p className="font-bold text-lg"> Rating</p>
+                     <p className="text-xs text-gray-500"></p>
+                   </div>
+                 </div>
+              </motion.div>
           </div>
 
         </div>

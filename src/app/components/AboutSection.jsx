@@ -120,17 +120,7 @@ export function AboutSection() {
         </div>
       </div>
 
-      {/* --- 3. NUMBERS THAT SPEAK --- */}
-      <div className="bg-gray-900 py-20 text-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8 text-center">
-              <StatBox number="1,200+" label="Families Settled" delay={0} />
-              <StatBox number="₹5 Cr+" label="Brokerage Saved" delay={0.1} />
-              <StatBox number="50+" label="Verified Projects" delay={0.2} />
-              <StatBox number="8 Yrs" label="Market Trust" delay={0.3} />
-            </div>
-        </div>
-      </div>
+     
 
       {/* --- 4. CORE VALUES --- */}
       <div className="py-24 px-6 max-w-7xl mx-auto bg-white">
@@ -169,15 +159,15 @@ export function AboutSection() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <FounderCard 
-              initials="RV"
-              name="Rahul Verma"
+              initials="DL"
+              name="DILESHWAR LAHRE"
               role="Founder & CEO"
               quote="Mera maqsad Chhattisgarh ke Real Estate ko India ka sabse transparent market banana hai."
             />
             <FounderCard 
-              initials="AS"
-              name="Amit Singh"
-              role="Head of Operations"
+              initials="AL"
+              name="ADITYA LAHRE"
+              role="Cofounder & Head of Operations"
               quote="Speed aur Quality hamari pehchan hai. Hum waade se pehle project deliver karte hain."
             />
           </div>
