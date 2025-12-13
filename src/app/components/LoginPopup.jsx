@@ -80,7 +80,8 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               value={formData.mobile}
               onChange={handleChange}
               placeholder="Enter 10-digit mobile number"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+              // 👇 Focus Rings Changed to Blue
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
               maxLength={10}
             />
           </div>
@@ -90,7 +91,8 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               <label className="block text-gray-700 text-sm font-medium">
                 Password
               </label>
-              <a href="#" className="text-xs text-orange-600 hover:underline font-semibold">
+              {/* 👇 Link Color Changed to Blue */}
+              <a href="#" className="text-xs text-blue-600 hover:underline font-semibold">
                 Forgot Password?
               </a>
             </div>
@@ -101,7 +103,8 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+              // 👇 Focus Rings Changed to Blue
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
             />
             <button
               type="button"
@@ -114,7 +117,8 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
 
           <button
             type="submit"
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95"
+            // 👇 Button Background & Shadow Changed to Blue
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95"
           >
             Sign In
           </button>
@@ -143,7 +147,8 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
             <button
               type="button"
               onClick={onSwitchToSignup}
-              className="text-orange-600 hover:underline font-bold"
+              // 👇 Link Color Changed to Blue
+              className="text-blue-600 hover:underline font-bold"
             >
               Sign Up
             </button>

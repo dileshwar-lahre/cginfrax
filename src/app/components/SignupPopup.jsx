@@ -136,7 +136,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Enter your full name"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+                  // 👇 Focus Blue
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                 />
               </div>
 
@@ -151,14 +152,16 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                   value={formData.mobile}
                   onChange={handleChange}
                   placeholder="Enter 10-digit mobile number"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+                  // 👇 Focus Blue
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                   maxLength={10}
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95"
+                // 👇 Button Blue
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95"
               >
                 Send OTP
               </button>
@@ -188,7 +191,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                 <button
                   type="button"
                   onClick={onSwitchToLogin}
-                  className="text-orange-600 hover:underline font-bold"
+                  // 👇 Text Blue
+                  className="text-blue-600 hover:underline font-bold"
                 >
                   Login
                 </button>
@@ -219,7 +223,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                           setOtp(newOtp.slice(0, 6));
                           if (val && i < 5) e.target.nextSibling?.focus();
                         }}
-                        className="w-12 h-12 text-center border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xl font-bold transition-all"
+                        // 👇 Focus Blue
+                        className="w-12 h-12 text-center border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xl font-bold transition-all"
                       />
                     ))}
                 </div>
@@ -227,7 +232,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
 
               <button
                 type="submit"
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95"
+                // 👇 Button Blue
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95"
               >
                 Verify OTP
               </button>
@@ -242,7 +248,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                   <button
                     type="button"
                     onClick={handleResend}
-                    className="text-orange-600 hover:underline font-bold"
+                    // 👇 Text Blue
+                    className="text-blue-600 hover:underline font-bold"
                   >
                     Resend Now
                   </button>
@@ -265,7 +272,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Create a strong password"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+                  // 👇 Focus Blue
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                 />
                 <button
                   type="button"
@@ -287,7 +295,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Re-enter password"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+                  // 👇 Focus Blue
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                 />
                 <button
                   type="button"
@@ -304,7 +313,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
 
               <button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-green-500/30 transition-all active:scale-95"
+                // 👇 Button Changed to Blue (was Green) for Consistency
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95"
               >
                 Complete Signup
               </button>

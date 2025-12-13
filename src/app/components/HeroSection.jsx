@@ -18,12 +18,11 @@ const stagger = {
 };
 
 export  function HeroSection() {
-  // Tabs State
   const tabs = ['Buy', 'Rent', 'Plots', 'PG'];
   const [activeTab, setActiveTab] = useState('Buy');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // --- DYNAMIC FILTER CONTENT BASED ON TAB ---
+  // --- DYNAMIC FILTER CONTENT ---
   const renderFilters = () => {
     if (activeTab === 'PG') {
       return (
@@ -69,7 +68,6 @@ export  function HeroSection() {
         </>
        );
     } else {
-      // Filters for Buy / Rent
       return (
         <>
            <div className="col-span-4 md:col-span-2">
@@ -94,11 +92,14 @@ export  function HeroSection() {
 
 
   return (
-    // 👇 Yaha ID="home" lagaya hai taaki Navbar kaam kare
     <section id="home" className="bg-white min-h-screen font-sans text-slate-900 selection:bg-black selection:text-white">
       
-      {/* --- HERO SECTION WITH NEW IMAGE --- */}
-      <div className="relative w-full h-[75vh] min-h-[550px] bg-slate-900 rounded-b-[2.5rem] md:rounded-b-[5rem] overflow-hidden shadow-2xl z-0">
+      {/* --- HERO SECTION --- */}
+      {/* FIXES:
+          1. min-h-[85vh] instead of h-[85vh] taaki mobile pe text wrap hone par cut na ho.
+          2. pb-32: Bottom padding badha di taaki text search bar ke piche na chupa jaye.
+      */}
+      <div className="relative w-full min-h-[85vh] bg-slate-900 rounded-b-[2.5rem] md:rounded-b-[5rem] overflow-hidden shadow-2xl z-0 -mt-24 pt-32 pb-32 flex items-center">
         
         {/* Background Image */}
         <div className="absolute inset-0 opacity-90">
@@ -116,7 +117,7 @@ export  function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/40"></div>
 
         {/* Hero Content */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 -mt-10">
+        <div className="relative z-10 w-full flex flex-col items-center justify-center text-center px-4">
           <motion.div initial="hidden" animate="visible" variants={fadeInUp}>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
@@ -124,7 +125,7 @@ export  function HeroSection() {
               In Chhattisgarh.
             </h1>
             
-            <p className="text-gray-200 text-lg max-w-xl mx-auto mb-8 font-medium opacity-90">
+            <p className="text-gray-200 text-lg max-w-xl mx-auto font-medium opacity-90">
               Buy, Rent, or find a PG. Direct connections, zero hassle.
             </p>
           </motion.div>
@@ -132,7 +133,11 @@ export  function HeroSection() {
       </div>
 
       {/* --- FLOATING SEARCH BAR --- */}
-      <div className="relative z-20 -mt-28 px-4">
+      {/* FIXES: 
+          1. z-30: Isko sabse upar rakha hai.
+          2. -mt-20 md:-mt-28: Mobile par thoda kam overlap, Desktop par jyada.
+      */}
+      <div className="relative z-30 -mt-20 md:-mt-28 px-4">
         <motion.div 
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -140,8 +145,9 @@ export  function HeroSection() {
           className="max-w-4xl mx-auto"
         >
           {/* 1. SLIDING TABS */}
+          {/* Added bg-slate-900 to ensure visibility on all backgrounds */}
           <div className="flex justify-center mb-4 overflow-x-auto py-2 no-scrollbar md:overflow-visible">
-            <div className="bg-black/40 backdrop-blur-xl p-1.5 rounded-full inline-flex border border-white/20 relative shadow-lg">
+            <div className="bg-slate-900 p-1.5 rounded-full inline-flex border border-white/20 relative shadow-xl">
               {tabs.map((tab) => (
                 <button
                   key={tab}
@@ -162,26 +168,26 @@ export  function HeroSection() {
           </div>
 
           {/* 2. THE SEARCH BOX */}
-          <div className="bg-white p-3 md:p-4 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] border border-gray-100 relative">
+          <div className="bg-white p-3 md:p-4 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-100 relative">
             <div className="flex flex-col md:grid md:grid-cols-[1.2fr_1fr_1fr_auto] gap-3">
               
               {/* Location Input */}
               <div className="bg-gray-50 hover:bg-gray-100 transition-colors rounded-2xl px-5 py-3 cursor-pointer group flex items-center gap-3 border border-transparent hover:border-gray-200">
                 <MapPin size={20} className="text-blue-500 shrink-0" /> 
-                <div className="flex-1">
+                <div className="flex-1 min-w-0"> {/* min-w-0 prevents flex items from overflowing */}
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Location</label>
-                    <select className="w-full bg-transparent font-bold text-slate-800 text-base outline-none -ml-1 appearance-none">
-                     <option>Raipur, All Areas</option>
-                     <option>Bhilai & Durg</option>
-                     <option>Naya Raipur</option>
-                   </select>
+                    <select className="w-full bg-transparent font-bold text-slate-800 text-base outline-none -ml-1 appearance-none truncate">
+                      <option>Raipur, All Areas</option>
+                      <option>Bhilai & Durg</option>
+                      <option>Naya Raipur</option>
+                    </select>
                 </div>
               </div>
 
               {/* Dynamic Input */}
               <div className="bg-gray-50 hover:bg-gray-100 transition-colors rounded-2xl px-5 py-3 cursor-pointer group flex items-center gap-3 border border-transparent hover:border-gray-200">
                 {activeTab === 'PG' ? <Users size={20} className="text-blue-500 shrink-0" /> : <Home size={20} className="text-blue-500 shrink-0" />}
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">
                       {activeTab === 'PG' ? 'Occupancy' : activeTab === 'Plots' ? 'Plot Type' : 'Property Type'}
                     </label>
@@ -194,7 +200,7 @@ export  function HeroSection() {
               {/* Budget Input */}
               <div className="bg-gray-50 hover:bg-gray-100 transition-colors rounded-2xl px-5 py-3 cursor-pointer group flex items-center gap-3 border border-transparent hover:border-gray-200">
                 <TrendingUp size={20} className="text-blue-500 shrink-0" /> 
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Budget</label>
                     <div className="font-bold text-slate-800 text-base truncate">Any Budget</div>
                 </div>
@@ -237,10 +243,10 @@ export  function HeroSection() {
       </div>
 
       {/* --- TRUSTED TEXT --- */}
-      <div className="pt-24 pb-12 px-6 text-center">
-         <p className="text-gray-500 font-medium flex items-center justify-center gap-2">
-           <CheckCircle size={16} className="text-blue-500" /> Trusted by 10,000+ people in Chhattisgarh to find their home.
-         </p>
+      <div className="pt-16 pb-12 px-6 text-center">
+          <p className="text-gray-500 font-medium flex items-center justify-center gap-2">
+            <CheckCircle size={16} className="text-blue-500" /> Trusted by 10,000+ people in Chhattisgarh.
+          </p>
       </div>
 
       {/* --- CARDS SECTION (Editor's Choice) --- */}
