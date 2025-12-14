@@ -1,14 +1,21 @@
-// File: src/app/components/LoginPopup.jsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { X, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { signIn } from "next-auth/react"; // NextAuth Import
+import { useRouter } from "next/navigation"; // Page refresh ke liye
 
 export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Loading & Error States
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
-    mobile: "",
+    email: "", // Changed Mobile to Email
     password: "",
   });
 
@@ -16,34 +23,56 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => {
-        setFormData({ mobile: "", password: "" });
+        setFormData({ email: "", password: "" });
+        setError("");
+        setLoading(false);
       }, 300);
     }
   }, [isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "mobile") {
-      const cleaned = value.replace(/\D/g, "");
-      setFormData({ ...formData, [name]: cleaned });
-    } else {
-      setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // --- API CALL HERE ---
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // 1. NextAuth Credentials Login Call
+      const res = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false, // Page reload na ho isliye false
+      });
+
+      if (res?.error) {
+        setError("Invalid email or password!");
+        setLoading(false);
+      } else {
+        // 2. Success
+        router.refresh(); // Session update karne ke liye
+        onClose(); // Popup band karein
+        // alert("Logged in successfully!"); // Optional
+      }
+    } catch (err) {
+      setError("Something went wrong. Try again.");
+      setLoading(false);
     }
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (!/^\d{10}$/.test(formData.mobile)) {
-      alert("Please enter a valid 10-digit mobile number");
-      return;
-    }
-    if (!formData.password) {
-      alert("Please enter your password");
-      return;
-    }
-    console.log("Login Data:", formData);
-    alert("Logged in successfully!");
-    onClose();
+  // --- GOOGLE LOGIN ---
+  const handleGoogleLogin = () => {
+    signIn("google");
   };
 
   if (!isOpen) return null;
@@ -63,26 +92,31 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
           Welcome Back
         </h2>
-        <p className="text-sm text-gray-500 text-center mb-8">
+        <p className="text-sm text-gray-500 text-center mb-6">
           Please enter your details to sign in
         </p>
+
+        {/* Error Message Display */}
+        {error && (
+          <div className="bg-red-50 text-red-500 text-sm py-2 px-3 rounded-lg mb-4 text-center">
+            {error}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-gray-700 text-sm font-medium mb-1">
-              Mobile Number
+              Email Address
             </label>
             <input
-              type="tel"
-              name="mobile"
+              type="email" // Changed type to email
+              name="email" // Changed name to email
               required
-              value={formData.mobile}
+              value={formData.email}
               onChange={handleChange}
-              placeholder="Enter 10-digit mobile number"
-              // 👇 Focus Rings Changed to Blue
+              placeholder="Enter your email"
               className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-              maxLength={10}
             />
           </div>
 
@@ -91,7 +125,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               <label className="block text-gray-700 text-sm font-medium">
                 Password
               </label>
-              {/* 👇 Link Color Changed to Blue */}
               <a href="#" className="text-xs text-blue-600 hover:underline font-semibold">
                 Forgot Password?
               </a>
@@ -103,7 +136,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              // 👇 Focus Rings Changed to Blue
               className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
             />
             <button
@@ -117,10 +149,10 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
 
           <button
             type="submit"
-            // 👇 Button Background & Shadow Changed to Blue
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95"
+            disabled={loading} // Disable button when loading
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
 
           {/* Continue with Google */}
@@ -135,6 +167,7 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
 
           <button
             type="button"
+            onClick={handleGoogleLogin} // API Call for Google
             className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 hover:bg-gray-50 transition-all"
           >
             <FcGoogle size={22} />
@@ -147,7 +180,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
             <button
               type="button"
               onClick={onSwitchToSignup}
-              // 👇 Link Color Changed to Blue
               className="text-blue-600 hover:underline font-bold"
             >
               Sign Up

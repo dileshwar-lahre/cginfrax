@@ -3,14 +3,20 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiArrowRight, FiChevronDown, FiChevronRight } from "react-icons/fi";
+import { FiMenu, FiArrowRight, FiChevronRight, FiLogOut, FiUser } from "react-icons/fi";
 import { Search, X } from 'lucide-react'; 
 
 import SignupPopup from "./SignupPopup";
 import LoginPopup from "./LoginPopup";
 
 export default function Navbar() {
+  const { data: session } = useSession();
+  const pathname = usePathname();
+  
+  // 1. STATE HOOKS
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -19,9 +25,7 @@ export default function Navbar() {
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  const openLogin = () => { setIsSignupOpen(false); setIsLoginOpen(true); setMenuOpen(false); };
-  const openSignup = () => { setIsLoginOpen(false); setIsSignupOpen(true); setMenuOpen(false); };
-
+  // 2. EFFECT HOOKS
   useEffect(() => {
     if (menuOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = 'unset';
@@ -34,6 +38,13 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // 3. Helper Functions
+  const openLogin = () => { setIsSignupOpen(false); setIsLoginOpen(true); setMenuOpen(false); };
+  const openSignup = () => { setIsLoginOpen(false); setIsSignupOpen(true); setMenuOpen(false); };
+
+  // 4. ✅ CRITICAL FIX: Ye line ab saare Hooks ke baad hai
+  if (pathname === "/profile") return null; 
 
   const navLinks = [
     { name: "Home", href: "#home", id: "home" },
@@ -69,6 +80,7 @@ export default function Navbar() {
                 src="/images/cginfrax_logo.png" 
                 alt="CGINFRAX Logo" 
                 fill 
+                sizes="(max-width: 768px) 224px, 288px"
                 className="object-contain object-left" 
                 priority 
               />
@@ -93,7 +105,6 @@ export default function Navbar() {
                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
                      />
                    )}
-                   {/* 👇 Colors Changed to Blue */}
                    <span className={`relative z-10 ${isActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600"}`}>
                      {item.name}
                    </span>
@@ -115,7 +126,6 @@ export default function Navbar() {
                )}
                <button 
                 onClick={() => setSearchOpen(!searchOpen)}
-                // 👇 Hover Color Changed to Blue
                 className="p-2 text-gray-600 hover:text-blue-600 transition-colors rounded-full hover:bg-gray-100"
               >
                  <Search size={20} strokeWidth={2.5} />
@@ -125,16 +135,35 @@ export default function Navbar() {
             {/* MOBILE SEARCH ICON */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              // 👇 Active Background Changed to Blue
               className={`md:hidden p-2 rounded-full transition-colors ${searchOpen ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}
             >
                {searchOpen ? <X size={22} strokeWidth={2.5} /> : <Search size={22} strokeWidth={2.5} />}
             </button>
 
-            {/* SIGN UP BUTTON (Desktop) */}
-            <button onClick={openSignup} className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-all duration-300">
-              Sign Up <FiArrowRight />
-            </button>
+            {/* --- AUTH BUTTONS (Desktop) --- */}
+            {session ? (
+              // If Logged In: Show Profile Icon
+              <Link href="/profile" className="hidden md:block relative group ml-2">
+                <div className="w-10 h-10 rounded-full bg-blue-600 border-2 border-white shadow-md overflow-hidden transition-transform transform group-hover:scale-110 flex items-center justify-center">
+                   {session.user?.image ? (
+                     <Image 
+                       src={session.user.image} 
+                       alt="Profile" 
+                       fill 
+                       sizes="40px"
+                       className="object-cover"
+                     />
+                   ) : (
+                     <FiUser className="text-white" size={20} />
+                   )}
+                </div>
+              </Link>
+            ) : (
+              // ✅ REVERTED: Wapas sirf "Sign Up" button kar diya
+              <button onClick={openSignup} className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-all duration-300">
+                Sign Up <FiArrowRight />
+              </button>
+            )}
 
             {/* MOBILE MENU TOGGLE */}
             <button onClick={() => setMenuOpen(true)} className="lg:hidden p-2 text-gray-800 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-xl active:scale-90 transition-all">
@@ -162,64 +191,89 @@ export default function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.header>
 
-      {/* --- MOBILE MENU DRAWER --- */}
-      <AnimatePresence>
-        {menuOpen && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden"
-            />
-            <motion.div
-              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white z-[60] shadow-2xl flex flex-col lg:hidden"
-            >
-              <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                <span className="text-lg font-bold text-gray-900">Menu</span>
-                <button onClick={() => setMenuOpen(false)} className="p-2 text-gray-500 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full transition-colors">
-                  <X size={24} strokeWidth={2.5} />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
-                <nav className="flex flex-col gap-2">
-                  {navLinks.map((item) => (
-                    <Link
-                      key={item.name} href={item.href}
-                      onClick={() => { setActiveSection(item.id); setMenuOpen(false); }}
-                      // 👇 Active State & Hover State Changed to Blue
-                      className={`flex items-center justify-between p-3.5 rounded-xl transition-all ${
-                        activeSection === item.id 
-                        ? "bg-blue-50 text-blue-600 font-bold" 
-                        : "text-gray-700 font-medium hover:bg-blue-50 hover:text-blue-600"
-                      }`}
-                    >
-                      {item.name}
-                      <FiChevronRight size={18} className={activeSection === item.id ? "opacity-100" : "opacity-30"}/>
-                    </Link>
-                  ))}
-                </nav>
-
-                <div className="mt-auto pt-6 border-t border-gray-100 space-y-4">
-                  <button onClick={openLogin} className="w-full text-center text-gray-600 font-semibold hover:text-blue-600 py-2">
-                    Already have an account? <span className="underline decoration-blue-500/50">Log In</span>
-                  </button>
-                  <button onClick={openSignup} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
-                    Sign Up <FiArrowRight />
+        {/* --- MOBILE MENU DRAWER --- */}
+        <AnimatePresence>
+          {menuOpen && (
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setMenuOpen(false)}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden"
+              />
+              <motion.div
+                initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white z-[60] shadow-2xl flex flex-col lg:hidden"
+              >
+                <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                  <span className="text-lg font-bold text-gray-900">Menu</span>
+                  <button onClick={() => setMenuOpen(false)} className="p-2 text-gray-500 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full transition-colors">
+                    <X size={24} strokeWidth={2.5} />
                   </button>
                 </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
-      <SignupPopup isOpen={isSignupOpen} onClose={() => setIsSignupOpen(false)} onSwitchToLogin={openLogin}/>
-      <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSwitchToSignup={openSignup}/>
+                <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
+                  <nav className="flex flex-col gap-2">
+                    {navLinks.map((item) => (
+                      <Link
+                        key={item.name} href={item.href}
+                        onClick={() => { setActiveSection(item.id); setMenuOpen(false); }}
+                        className={`flex items-center justify-between p-3.5 rounded-xl transition-all ${
+                          activeSection === item.id 
+                          ? "bg-blue-50 text-blue-600 font-bold" 
+                          : "text-gray-700 font-medium hover:bg-blue-50 hover:text-blue-600"
+                        }`}
+                      >
+                        {item.name}
+                        <FiChevronRight size={18} className={activeSection === item.id ? "opacity-100" : "opacity-30"}/>
+                      </Link>
+                    ))}
+                  </nav>
+
+                  <div className="mt-auto pt-6 border-t border-gray-100 space-y-4">
+                    {session ? (
+                      <div className="space-y-3">
+                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-4">
+                            <div className="w-12 h-12 relative rounded-full overflow-hidden border border-gray-200 bg-blue-600 flex items-center justify-center text-white">
+                               {session.user?.image ? (
+                                 <Image src={session.user.image} alt="Profile" fill className="object-cover" />
+                               ) : (
+                                 <FiUser size={24} />
+                               )}
+                            </div>
+                            <div>
+                              <p className="font-bold text-gray-900">{session.user?.name}</p>
+                              <p className="text-xs text-gray-500">{session.user?.email}</p>
+                            </div>
+                         </div>
+                         <Link href="/profile" onClick={() => setMenuOpen(false)} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
+                           <FiUser /> View Profile
+                         </Link>
+                         <button onClick={() => signOut()} className="w-full py-3 border border-red-200 text-red-500 font-bold rounded-xl hover:bg-red-50 flex items-center justify-center gap-2">
+                           <FiLogOut /> Logout
+                         </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button onClick={openLogin} className="w-full text-center text-gray-600 font-semibold hover:text-blue-600 py-2">
+                          Already have an account? <span className="underline decoration-blue-500/50">Log In</span>
+                        </button>
+                        <button onClick={openSignup} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
+                          Sign Up <FiArrowRight />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        <SignupPopup isOpen={isSignupOpen} onClose={() => setIsSignupOpen(false)} onSwitchToLogin={openLogin}/>
+        <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSwitchToSignup={openSignup}/>
+      </motion.header>
     </>
   );
 }

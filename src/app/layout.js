@@ -3,6 +3,7 @@ import "./globals.css";
 import Topbar from "./components/Topbar";
 import PhoneSearchBar from "./components/Phonesearchbar";
 import Footer from "./components/Footer";
+import AuthProvider from "./components/AuthProvider"; // 👈 Ye naya import hai
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,11 +26,14 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Topbar/>
-        <PhoneSearchBar/>
-        {children}
-        <Footer/>
-
+        {/* 👇 Yahan AuthProvider shuru hua */}
+        <AuthProvider>
+          <Topbar />
+          <PhoneSearchBar />
+          {children}
+          <Footer />
+        </AuthProvider>
+        {/* 👆 Yahan AuthProvider khatam hua */}
       </body>
     </html>
   );
