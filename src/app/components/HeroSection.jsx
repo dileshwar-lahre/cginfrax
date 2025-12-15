@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+// 👇 1. useRouter import kiya navigation ke liye
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, MapPin, Home, TrendingUp, SlidersHorizontal, 
@@ -17,10 +19,18 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } }
 };
 
-export  function HeroSection() {
+export function HeroSection() {
   const tabs = ['Buy', 'Rent', 'Plots', 'PG'];
   const [activeTab, setActiveTab] = useState('Buy');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // --- SCROLL FUNCTION ---
+  const scrollToProjects = () => {
+    const projectsSection = document.getElementById('projects');
+    if (projectsSection) {
+      projectsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // --- DYNAMIC FILTER CONTENT ---
   const renderFilters = () => {
@@ -95,10 +105,6 @@ export  function HeroSection() {
     <section id="home" className="bg-white min-h-screen font-sans text-slate-900 selection:bg-black selection:text-white">
       
       {/* --- HERO SECTION --- */}
-      {/* FIXES:
-          1. min-h-[85vh] instead of h-[85vh] taaki mobile pe text wrap hone par cut na ho.
-          2. pb-32: Bottom padding badha di taaki text search bar ke piche na chupa jaye.
-      */}
       <div className="relative w-full min-h-[85vh] bg-slate-900 rounded-b-[2.5rem] md:rounded-b-[5rem] overflow-hidden shadow-2xl z-0 -mt-24 pt-32 pb-32 flex items-center">
         
         {/* Background Image */}
@@ -133,10 +139,6 @@ export  function HeroSection() {
       </div>
 
       {/* --- FLOATING SEARCH BAR --- */}
-      {/* FIXES: 
-          1. z-30: Isko sabse upar rakha hai.
-          2. -mt-20 md:-mt-28: Mobile par thoda kam overlap, Desktop par jyada.
-      */}
       <div className="relative z-30 -mt-20 md:-mt-28 px-4">
         <motion.div 
           initial={{ opacity: 0, y: 50 }}
@@ -145,7 +147,6 @@ export  function HeroSection() {
           className="max-w-4xl mx-auto"
         >
           {/* 1. SLIDING TABS */}
-          {/* Added bg-slate-900 to ensure visibility on all backgrounds */}
           <div className="flex justify-center mb-4 overflow-x-auto py-2 no-scrollbar md:overflow-visible">
             <div className="bg-slate-900 p-1.5 rounded-full inline-flex border border-white/20 relative shadow-xl">
               {tabs.map((tab) => (
@@ -174,7 +175,7 @@ export  function HeroSection() {
               {/* Location Input */}
               <div className="bg-gray-50 hover:bg-gray-100 transition-colors rounded-2xl px-5 py-3 cursor-pointer group flex items-center gap-3 border border-transparent hover:border-gray-200">
                 <MapPin size={20} className="text-blue-500 shrink-0" /> 
-                <div className="flex-1 min-w-0"> {/* min-w-0 prevents flex items from overflowing */}
+                <div className="flex-1 min-w-0">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Location</label>
                     <select className="w-full bg-transparent font-bold text-slate-800 text-base outline-none -ml-1 appearance-none truncate">
                       <option>Raipur, All Areas</option>
@@ -256,7 +257,11 @@ export  function HeroSection() {
              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-2">Editor's Choice</h2>
              <p className="text-gray-500 font-medium">Handpicked premium properties for you.</p>
           </div>
-          <button className="hidden md:flex items-center gap-2 text-sm font-bold border-b-2 border-black pb-1 hover:text-blue-600 hover:border-blue-600 transition-colors">
+          
+          <button 
+            onClick={scrollToProjects}
+            className="hidden md:flex items-center gap-2 text-sm font-bold border-b-2 border-black pb-1 hover:text-blue-600 hover:border-blue-600 transition-colors"
+          >
             View All Properties <ArrowRight size={16} />
           </button>
         </div>
@@ -268,7 +273,9 @@ export  function HeroSection() {
           viewport={{ once: true }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
+          {/* ✅ UPDATED: Added 'id' prop to cards for linking */}
           <ModernCard 
+             id="demo-1" // Note: Real DB ID hone chahiye agar page kholna hai
              image="https://images.unsplash.com/photo-1613545325278-f24b0cae1224?q=80&w=2070&auto=format&fit=crop"
              title="The Glass House"
              location="Civil Lines, Raipur"
@@ -277,6 +284,7 @@ export  function HeroSection() {
              tag="Luxury"
           />
           <ModernCard 
+             id="demo-2"
              image="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop"
              title="Eco-Green Villa"
              location="Naya Raipur, Sec 24"
@@ -285,6 +293,7 @@ export  function HeroSection() {
              tag="Eco Friendly"
           />
           <ModernCard 
+             id="demo-3"
              image="https://images.unsplash.com/photo-1593006526979-5f8814c229f9?q=80&w=2070&auto=format&fit=crop"
              title="Student PG (Boys)"
              location="Kota, Raipur"
@@ -310,7 +319,10 @@ function FilterChip({ label, icon }) {
   )
 }
 
-function ModernCard({ image, title, location, price, rating, tag, isPG }) {
+// ✅ UPDATED: Added 'id' prop and navigation logic
+function ModernCard({ id, image, title, location, price, rating, tag, isPG }) {
+  const router = useRouter(); // Hook for navigation
+
   return (
     <motion.div variants={fadeInUp} className="group relative w-full h-[450px] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
       
@@ -358,7 +370,11 @@ function ModernCard({ image, title, location, price, rating, tag, isPG }) {
               </div>
             )}
             
-            <button className="mt-6 w-full bg-white text-slate-900 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors">
+            {/* ✅ Button with Router Push */}
+            <button 
+              onClick={() => router.push(`/project/${id}`)}
+              className="mt-6 w-full bg-white text-slate-900 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors"
+            >
               View Details <PlayCircle size={18} />
             </button>
           </div>

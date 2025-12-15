@@ -1,7 +1,10 @@
 import Navbar from './components/Navbar';
-import {HeroSection} from './components/HeroSection'; // 👈 Ye wala abhi banaya
-import {AboutSection} from './components/AboutSection';
-import {ServicesSection} from './components/ServicesSection';
+import { HeroSection } from './components/HeroSection'; 
+import { AboutSection } from './components/AboutSection';
+import { ServicesSection } from './components/ServicesSection';
+
+// 👇 1. Project Page ko yahan import karein (Folder path ka dhyan rakhein)
+import ProjectPage from './project/page'; 
 
 export default function Home() {
   return (
@@ -9,13 +12,28 @@ export default function Home() {
       <Navbar />
 
       {/* 1. Hero & Search */}
-      <HeroSection />
+      {/* 👇 id="home" lagaya taki navbar ka Home button yahan laye */}
+      <section id="home">
+        <HeroSection />
+      </section>
 
       {/* 2. About Company */}
-      <AboutSection />
+      {/* 👇 id="about" lagaya */}
+      <section id="about">
+        <AboutSection />
+      </section>
 
       {/* 3. Services */}
-      <ServicesSection />
+      {/* 👇 id="services" lagaya */}
+      <section id="services">
+        <ServicesSection />
+      </section>
+
+      {/* 4. Projects Section */}
+      {/* 👇 Ye naya section add kiya aur id="projects" di */}
+      <section id="projects">
+        <ProjectPage />
+      </section>
 
       {/* Contact Section baad me add kar lena */}
     </main>

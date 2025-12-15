@@ -25,33 +25,56 @@ export default function Navbar() {
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  // 2. EFFECT HOOKS
-  useEffect(() => {
-    if (menuOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-  }, [menuOpen]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // 3. Helper Functions
+  // 2. HELPER FUNCTIONS
   const openLogin = () => { setIsSignupOpen(false); setIsLoginOpen(true); setMenuOpen(false); };
   const openSignup = () => { setIsLoginOpen(false); setIsSignupOpen(true); setMenuOpen(false); };
 
-  // 4. ✅ CRITICAL FIX: Ye line ab saare Hooks ke baad hai
-  if (pathname === "/profile") return null; 
-
+  // Links define kiye (Inka ID niche use hoga)
   const navLinks = [
     { name: "Home", href: "#home", id: "home" },
     { name: "About", href: "#about", id: "about" },
     { name: "Services", href: "#services", id: "services" },
     { name: "Projects", href: "#projects", id: "projects" },
   ];
+
+  // 3. EFFECT HOOKS
+  useEffect(() => {
+    if (menuOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+  }, [menuOpen]);
+
+  // ✅ UPDATED: Scroll Handler with "Auto Highlight Logic"
+  useEffect(() => {
+    const handleScroll = () => {
+      // 1. Navbar Background Logic (Transparent vs White)
+      setScrolled(window.scrollY > 20);
+
+      // 2. Auto-Highlight Menu Item Logic (Scroll Spy)
+      // Thoda offset (100px) add kiya taki header ke niche aate hi highlight ho jaye
+      const scrollPosition = window.scrollY + 100; 
+
+      navLinks.forEach((link) => {
+        const section = document.getElementById(link.id);
+        if (section) {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+
+          if (
+            scrollPosition >= sectionTop &&
+            scrollPosition < sectionTop + sectionHeight
+          ) {
+            setActiveSection(link.id);
+          }
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [navLinks]);
+
+  // 4. ✅ CRITICAL FIX: Profile page check
+  if (pathname === "/profile") return null; 
 
   return (
     <>
@@ -159,7 +182,7 @@ export default function Navbar() {
                 </div>
               </Link>
             ) : (
-              // ✅ REVERTED: Wapas sirf "Sign Up" button kar diya
+              // ✅ SIGN UP BUTTON ONLY
               <button onClick={openSignup} className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-all duration-300">
                 Sign Up <FiArrowRight />
               </button>
