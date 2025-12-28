@@ -4,7 +4,6 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-// ✅ Pencil aur baki icons import kiye
 import { LogOut, User, Mail, Heart, Shield, X, UploadCloud, MapPin, Trash2, IndianRupee, Pencil } from "lucide-react"; 
 import { motion } from "framer-motion";
 
@@ -12,7 +11,7 @@ export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   
-  // State for user properties
+  // State for user properties - Default empty array
   const [myProperties, setMyProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,9 +29,16 @@ export default function ProfilePage() {
         try {
           const res = await fetch(`/api/properties?email=${session.user.email}`);
           const data = await res.json();
-          setMyProperties(data);
+          
+          // ✅ FIX: Check kar rahe hain ki data array hai ya nahi
+          if (Array.isArray(data)) {
+            setMyProperties(data);
+          } else {
+            setMyProperties([]); // Agar array nahi hai toh khali kar do
+          }
         } catch (error) {
           console.error("Error fetching properties:", error);
+          setMyProperties([]);
         } finally {
           setLoading(false);
         }
@@ -86,7 +92,6 @@ export default function ProfilePage() {
       >
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 mb-10">
           
-          {/* Header Area */}
           <div className="h-48 bg-gradient-to-r from-blue-600 to-indigo-700 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
              <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -ml-10 -mb-10"></div>
@@ -95,7 +100,6 @@ export default function ProfilePage() {
           <div className="px-8 pb-10 relative">
             <div className="flex flex-col md:flex-row items-center md:items-end -mt-20 mb-8 gap-6">
               
-              {/* Profile Image */}
               <div className="relative group">
                 <div className="w-36 h-36 md:w-44 md:h-44 rounded-full border-[6px] border-white shadow-xl overflow-hidden bg-white flex items-center justify-center">
                   {session?.user?.image ? (
@@ -106,7 +110,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* User Info */}
               <div className="text-center md:text-left flex-1 mb-2">
                 <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">{session?.user?.name}</h1>
                 <p className="text-gray-500 font-medium flex items-center justify-center md:justify-start gap-2 mt-1 text-lg">
@@ -114,7 +117,6 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              {/* Logout & Upload Buttons */}
               <div className="flex gap-3">
                 <button onClick={() => router.push('/upload')} className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/30 mb-2">
                     <UploadCloud size={20} /> Upload
@@ -127,32 +129,30 @@ export default function ProfilePage() {
 
             <hr className="border-gray-100 mb-8" />
 
-            {/* --- MY LISTINGS SECTION --- */}
             <div>
                 <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
-                    My Listed Properties <span className="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{myProperties.length}</span>
+                    My Listed Properties <span className="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{myProperties?.length || 0}</span>
                 </h2>
 
                 {loading ? (
                     <p className="text-gray-500">Loading your properties...</p>
-                ) : myProperties.length === 0 ? (
+                ) : (!myProperties || myProperties.length === 0) ? (
                     <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
                         <p className="text-gray-500 font-medium mb-4">You haven't uploaded any properties yet.</p>
                         <button onClick={() => router.push('/upload')} className="text-blue-600 font-bold hover:underline">Upload Now</button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {myProperties.map((prop) => (
+                        {/* ✅ FIX: Yahan safe mapping use ki hai */}
+                        {Array.isArray(myProperties) && myProperties.map((prop) => (
                             <div key={prop._id} className="flex bg-white border border-gray-100 rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow">
-                                {/* Image Thumbnail */}
                                 <div className="relative w-32 h-32 rounded-xl overflow-hidden flex-shrink-0">
-                                    <Image src={prop.imageUrl} alt={prop.title} fill className="object-cover" />
+                                    <Image src={prop.imageUrl || "/placeholder.jpg"} alt={prop.title} fill className="object-cover" />
                                     <div className="absolute top-2 left-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">
                                         {prop.status}
                                     </div>
                                 </div>
                                 
-                                {/* Content */}
                                 <div className="ml-4 flex-1 flex flex-col justify-between">
                                     <div>
                                         <h3 className="font-bold text-gray-900 line-clamp-1">{prop.title}</h3>
@@ -164,9 +164,7 @@ export default function ProfilePage() {
                                         </p>
                                     </div>
                                     
-                                    {/* ✅ Action Buttons (Edit & Delete) */}
                                     <div className="flex justify-end gap-2 mt-2">
-                                        {/* Edit Button */}
                                         <button 
                                             onClick={() => router.push(`/edit-property/${prop._id}`)} 
                                             className="text-blue-500 hover:bg-blue-50 p-2 rounded-full transition-colors"
@@ -175,7 +173,6 @@ export default function ProfilePage() {
                                             <Pencil size={18} />
                                         </button>
 
-                                        {/* Delete Button */}
                                         <button 
                                             onClick={() => handleDelete(prop._id)}
                                             className="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"
@@ -190,7 +187,6 @@ export default function ProfilePage() {
                     </div>
                 )}
             </div>
-
           </div>
         </div>
       </motion.div>
