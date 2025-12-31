@@ -12,24 +12,24 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     CredentialsProvider({
+      id: "credentials",
+      name: "Credentials",
       credentials: {
-        email: {},
-        password: {},
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         await connectToDB();
-        const user = await User.findOne({ email: credentials.email });
-
-        if (!user) throw new Error("User not found!");
-
-        const isPasswordCorrect = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordCorrect) throw new Error("Wrong credentials!");
-
-        return user;
+        try {
+          const user = await User.findOne({ email: credentials.email });
+          if (user) {
+            const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+            if (isPasswordCorrect) return user;
+          }
+        } catch (err) {
+          throw new Error(err);
+        }
+        return null; // Login Failed
       },
     }),
   ],
@@ -39,24 +39,29 @@ const handler = NextAuth({
         await connectToDB();
         try {
           const existingUser = await User.findOne({ email: user.email });
-
           if (!existingUser) {
             const newUser = new User({
               username: user.name,
               email: user.email,
-              img: user.image,
-              password: "", // Google users ka password khali rahega
+              mobile: "", 
+              password: "",
             });
             await newUser.save();
           }
+          return true;
         } catch (err) {
-          console.log(err);
+          console.log("Google Login Error", err);
           return false;
         }
       }
       return true;
     },
   },
+  session: { strategy: "jwt" },
+  secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/", // Login page ka path
+  }
 });
 
 export { handler as GET, handler as POST };

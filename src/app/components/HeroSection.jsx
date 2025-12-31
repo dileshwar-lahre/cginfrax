@@ -1,38 +1,247 @@
 'use client';
 
-import React, { useState } from 'react';
-// 👇 1. useRouter import kiya navigation ke liye
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, MapPin, Home, TrendingUp, SlidersHorizontal, 
-  ArrowRight, BedDouble, Bath, Square, PlayCircle, Star, Users, CheckCircle 
+  ArrowRight, BedDouble, Bath, Square, PlayCircle, Star, Users, CheckCircle,
+  Map as MapIcon, Phone, ChevronRight
 } from 'lucide-react';
 
-// --- Animations ---
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
-};
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.1 } }
-};
+// --- BANNERS DATA (For Mobile) ---
+const MOBILE_BANNERS = [
+  { 
+    id: '1', 
+    title: 'Dream Home Construction 🏗️', 
+    subtitle: 'Connect with top contractors.', 
+    btnText: 'Enquire Now', 
+    bg: 'bg-slate-800', 
+    btnColor: 'bg-orange-500',
+    route: '/construction' 
+  },
+  { 
+    id: '2', 
+    title: 'Modern Interior Design 🛋️', 
+    subtitle: 'Luxury living room & kitchen.', 
+    btnText: 'View Designs', 
+    bg: 'bg-slate-600', 
+    btnColor: 'bg-teal-500',
+    route: '/interior' 
+  },
+  { 
+    id: '3', 
+    title: 'Exterior & Gardening 🏡', 
+    subtitle: 'Elevation, Paint & Landscaping.', 
+    btnText: 'Get Quote', 
+    bg: 'bg-amber-900', 
+    btnColor: 'bg-stone-500',
+    route: '/exterior' 
+  }
+];
 
 export function HeroSection() {
+  // We will render two different views based on screen size using CSS classes
+  return (
+    <>
+      {/* --- MOBILE VIEW (Visible only on small screens) --- */}
+      <div className="block md:hidden bg-white min-h-screen pb-24">
+        <MobileView />
+      </div>
+
+      {/* --- DESKTOP VIEW (Visible only on medium screens and up) --- */}
+      <div className="hidden md:block">
+        <DesktopView />
+      </div>
+    </>
+  );
+}
+
+// ============================================================================
+// 👇 PART 1: MOBILE VIEW COMPONENT (Converted from React Native to Web)
+// ============================================================================
+function MobileView() {
+  const router = useRouter();
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  // --- Auto Slider Logic ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prev) => (prev + 1) % MOBILE_BANNERS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="px-5 pt-4 font-sans text-slate-900">
+      
+      {/* --- SEARCH SECTION --- */}
+      <div className="flex items-center gap-3 mb-6 mt-2">
+        <div className="flex-1 flex items-center bg-gray-50 h-[52px] rounded-2xl px-4 shadow-sm border border-gray-100">
+          <Search size={22} className="text-gray-400 ml-1" />
+          <input 
+            type="text" 
+            placeholder="Search House, Land, PG..." 
+            className="flex-1 ml-3 bg-transparent outline-none text-base text-gray-700 placeholder:text-gray-400"
+          />
+        </div>
+        <button className="w-[52px] h-[52px] bg-[#001C30] rounded-2xl flex items-center justify-center shadow-lg shadow-slate-900/20 active:scale-95 transition-transform">
+          <SlidersHorizontal size={22} className="text-white" />
+        </button>
+      </div>
+
+      {/* --- CATEGORIES --- */}
+      <div className="flex justify-between items-center mb-8 px-1">
+        <CategoryItem icon={<Home size={26}/>} label="House" color="bg-blue-50" iconColor="text-blue-500" onClick={() => router.push('/buy')} />
+        <CategoryItem icon={<MapIcon size={26}/>} label="Land" color="bg-green-50" iconColor="text-green-600" onClick={() => router.push('/plots')} />
+        <CategoryItem icon={<BedDouble size={26}/>} label="Room" color="bg-orange-50" iconColor="text-orange-500" onClick={() => router.push('/rent')} />
+        <CategoryItem icon={<Users size={26}/>} label="PG" color="bg-purple-50" iconColor="text-purple-600" onClick={() => router.push('/pg')} />
+      </div>
+
+      {/* --- SLIDER BANNER --- */}
+      <div className="relative w-full mb-8">
+        <div className="overflow-hidden rounded-2xl relative h-[150px]">
+           {MOBILE_BANNERS.map((banner, index) => (
+             <div 
+               key={banner.id}
+               onClick={() => router.push(banner.route)}
+               className={`absolute inset-0 w-full h-full p-5 flex flex-col justify-center transition-all duration-500 ease-in-out cursor-pointer ${banner.bg} ${index === currentBannerIndex ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}
+               style={{ pointerEvents: index === currentBannerIndex ? 'auto' : 'none' }}
+             >
+                <h3 className="text-white text-lg font-bold">{banner.title}</h3>
+                <p className="text-white/80 text-xs mt-1 mb-3">{banner.subtitle}</p>
+                <span className={`${banner.btnColor} text-white text-[10px] font-bold px-3 py-2 rounded-lg self-start`}>
+                  {banner.btnText}
+                </span>
+             </div>
+           ))}
+        </div>
+        {/* Dots */}
+        <div className="flex justify-center gap-1.5 mt-4">
+          {MOBILE_BANNERS.map((_, idx) => (
+            <div key={idx} className={`h-2 rounded-full transition-all duration-300 ${currentBannerIndex === idx ? 'w-5 bg-blue-400' : 'w-2 bg-gray-200'}`} />
+          ))}
+        </div>
+      </div>
+
+      {/* --- FEATURED PROPERTIES --- */}
+      <div className="flex justify-between items-end mb-4">
+        <h2 className="text-lg font-bold text-[#1A1E25]">Featured Properties</h2>
+        <span className="text-blue-500 text-sm font-semibold cursor-pointer">See All</span>
+      </div>
+      
+      <div className="flex overflow-x-auto gap-4 pb-6 -mx-5 px-5 no-scrollbar scroll-smooth">
+         <MobilePropertyCard 
+            image="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3" 
+            price="₹ 85 Lakh" title="3 BHK Luxury Villa" address="Sec 45, Raipur" tag="HOUSE" 
+         />
+         <MobilePropertyCard 
+            image="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3" 
+            price="₹ 45 Lakh" title="2000 Sq.ft Plot" address="Naya Raipur" tag="LAND" 
+         />
+         <MobilePropertyCard 
+            image="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3" 
+            price="₹ 15k /mo" title="4 BHK Penthouse" address="Civil Lines" tag="RENT" 
+         />
+      </div>
+
+      {/* --- RECOMMENDED --- */}
+      <h2 className="text-lg font-bold text-[#1A1E25] mb-4 mt-2">Recommended For You</h2>
+      <div className="space-y-4">
+        <MobilePGCard 
+           image="https://images.unsplash.com/photo-1522771753035-485053bed83d?ixlib=rb-4.0.3" 
+           name="Stanza Living House" price="₹ 8,000/mo" type="Single Room" location="Kota, Raipur" 
+        />
+        <MobilePGCard 
+           image="https://images.unsplash.com/photo-1598928506311-c55ded91a20c?ixlib=rb-4.0.3" 
+           name="Zolo Comfort PG" price="₹ 6,500/mo" type="Double Sharing" location="Shankar Nagar" 
+        />
+      </div>
+
+    </div>
+  );
+}
+
+// --- Mobile Helpers ---
+function CategoryItem({ icon, label, color, iconColor, onClick }) {
+  return (
+    <div onClick={onClick} className="flex flex-col items-center gap-2 cursor-pointer active:opacity-60 transition-opacity">
+      <div className={`w-[68px] h-[68px] rounded-2xl flex items-center justify-center shadow-sm ${color} ${iconColor}`}>
+        {icon}
+      </div>
+      <span className="text-[13px] font-semibold text-gray-700">{label}</span>
+    </div>
+  )
+}
+
+function MobilePropertyCard({ image, price, title, address, tag }) {
+  return (
+    <div className="min-w-[70%] bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden pb-3">
+      <div className="relative h-[150px]">
+        <img src={image} className="w-full h-full object-cover" alt={title} />
+        <span className="absolute top-2.5 left-2.5 bg-[#1A1E25] text-white text-[10px] font-bold px-2 py-1 rounded-md">{tag}</span>
+      </div>
+      <div className="px-3 pt-3">
+        <h4 className="text-lg font-bold text-[#1A1E25]">{price}</h4>
+        <p className="text-sm text-gray-600 font-medium truncate">{title}</p>
+        <div className="flex items-center gap-1 mt-1 text-gray-400">
+           <MapPin size={12} />
+           <span className="text-xs truncate">{address}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MobilePGCard({ image, name, price, type, location }) {
+  return (
+    <div className="flex gap-3 bg-white p-2.5 rounded-2xl border border-gray-100 shadow-sm">
+      <img src={image} className="w-20 h-20 rounded-xl object-cover" alt={name} />
+      <div className="flex-1 flex flex-col justify-center">
+        <h4 className="font-bold text-[#1A1E25] text-[15px]">{name}</h4>
+        <p className="text-xs text-gray-500 mb-0.5">{type}</p>
+        <p className="text-xs text-gray-400 mb-1 flex items-center gap-0.5"><MapPin size={10}/> {location}</p>
+        <p className="text-blue-500 font-bold text-sm">{price}</p>
+      </div>
+      <button className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center self-center shadow-md active:scale-95 transition-transform">
+        <Phone size={18} className="text-white" />
+      </button>
+    </div>
+  )
+}
+
+
+// ============================================================================
+// 👇 PART 2: DESKTOP VIEW COMPONENT (Your Original High-Quality Code)
+// ============================================================================
+function DesktopView() {
+  const router = useRouter(); 
   const tabs = ['Buy', 'Rent', 'Plots', 'PG'];
   const [activeTab, setActiveTab] = useState('Buy');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // --- SCROLL FUNCTION ---
-  const scrollToProjects = () => {
-    const projectsSection = document.getElementById('projects');
-    if (projectsSection) {
-      projectsSection.scrollIntoView({ behavior: 'smooth' });
-    }
+  // Animations
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
+  const stagger = {
+    visible: { transition: { staggerChildren: 0.1 } }
   };
 
-  // --- DYNAMIC FILTER CONTENT ---
+  const handleTabClick = (tab) => {
+    setActiveTab(tab); 
+    if (tab === 'PG') router.push('/pg');
+    else if (tab === 'Plots') router.push('/plots');
+    else if (tab === 'Rent') router.push('/rent');
+    else if (tab === 'Buy') router.push('/buy');
+  };
+
+  const scrollToProjects = () => {
+    const projectsSection = document.getElementById('projects');
+    if (projectsSection) projectsSection.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const renderFilters = () => {
     if (activeTab === 'PG') {
       return (
@@ -100,7 +309,6 @@ export function HeroSection() {
     }
   };
 
-
   return (
     <section id="home" className="bg-white min-h-screen font-sans text-slate-900 selection:bg-black selection:text-white">
       
@@ -119,18 +327,14 @@ export function HeroSection() {
           />
         </div>
         
-        {/* Dark Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/40"></div>
 
-        {/* Hero Content */}
         <div className="relative z-10 w-full flex flex-col items-center justify-center text-center px-4">
           <motion.div initial="hidden" animate="visible" variants={fadeInUp}>
-            
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
               Find Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-white">Perfect Space</span> <br />
               In Chhattisgarh.
             </h1>
-            
             <p className="text-gray-200 text-lg max-w-xl mx-auto font-medium opacity-90">
               Buy, Rent, or find a PG. Direct connections, zero hassle.
             </p>
@@ -146,13 +350,13 @@ export function HeroSection() {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="max-w-4xl mx-auto"
         >
-          {/* 1. SLIDING TABS */}
+          {/* 1. SLIDING TABS (NAVIGATION) */}
           <div className="flex justify-center mb-4 overflow-x-auto py-2 no-scrollbar md:overflow-visible">
             <div className="bg-slate-900 p-1.5 rounded-full inline-flex border border-white/20 relative shadow-xl">
               {tabs.map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => handleTabClick(tab)}
                   className={`relative px-5 md:px-6 py-2 rounded-full text-sm font-bold z-10 transition-colors duration-300 whitespace-nowrap ${activeTab === tab ? 'text-slate-900' : 'text-white hover:text-white/80'}`}
                 >
                   {activeTab === tab && (
@@ -273,9 +477,9 @@ export function HeroSection() {
           viewport={{ once: true }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          {/* ✅ UPDATED: Added 'id' prop to cards for linking */}
+          {/* Cards */}
           <ModernCard 
-             id="demo-1" // Note: Real DB ID hone chahiye agar page kholna hai
+             id="demo-1"
              image="https://images.unsplash.com/photo-1613545325278-f24b0cae1224?q=80&w=2070&auto=format&fit=crop"
              title="The Glass House"
              location="Civil Lines, Raipur"
@@ -304,12 +508,11 @@ export function HeroSection() {
           />
         </motion.div>
       </div>
-
     </section>
   );
 }
 
-// --- HELPER COMPONENTS ---
+// --- DESKTOP HELPERS ---
 
 function FilterChip({ label, icon }) {
   return (
@@ -319,25 +522,19 @@ function FilterChip({ label, icon }) {
   )
 }
 
-// ✅ UPDATED: Added 'id' prop and navigation logic
 function ModernCard({ id, image, title, location, price, rating, tag, isPG }) {
-  const router = useRouter(); // Hook for navigation
+  const router = useRouter(); 
 
   return (
-    <motion.div variants={fadeInUp} className="group relative w-full h-[450px] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
-      
+    <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } } }} className="group relative w-full h-[450px] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
       <img src={image} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-      
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-
       <div className="absolute top-6 left-6 bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider">
         {tag}
       </div>
-
       <div className="absolute top-6 right-6 flex items-center gap-1 bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
         <Star size={12} className="text-yellow-500 fill-yellow-500" /> {rating}
       </div>
-
       <div className="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
         <div className="text-white">
           <p className="text-3xl font-black mb-1">{price}</p>
@@ -349,28 +546,17 @@ function ModernCard({ id, image, title, location, price, rating, tag, isPG }) {
           <div className="h-0 group-hover:h-auto overflow-hidden transition-all duration-500 opacity-0 group-hover:opacity-100">
             {!isPG ? (
               <div className="flex items-center gap-6 border-t border-white/20 pt-4">
-                 <div className="flex items-center gap-2">
-                   <BedDouble size={20} className="text-blue-300" /> <span className="text-sm font-bold">3 Beds</span>
-                 </div>
-                 <div className="flex items-center gap-2">
-                   <Bath size={20} className="text-blue-300" /> <span className="text-sm font-bold">2 Baths</span>
-                 </div>
-                 <div className="flex items-center gap-2">
-                   <Square size={20} className="text-blue-300" /> <span className="text-sm font-bold">1400 sqft</span>
-                 </div>
+                 <div className="flex items-center gap-2"><BedDouble size={20} className="text-blue-300" /> <span className="text-sm font-bold">3 Beds</span></div>
+                 <div className="flex items-center gap-2"><Bath size={20} className="text-blue-300" /> <span className="text-sm font-bold">2 Baths</span></div>
+                 <div className="flex items-center gap-2"><Square size={20} className="text-blue-300" /> <span className="text-sm font-bold">1400 sqft</span></div>
               </div>
             ) : (
               <div className="flex items-center gap-6 border-t border-white/20 pt-4">
-                 <div className="flex items-center gap-2">
-                   <Users size={20} className="text-blue-300" /> <span className="text-sm font-bold">Double Sharing</span>
-                 </div>
-                 <div className="flex items-center gap-2">
-                   <CheckCircle size={20} className="text-blue-300" /> <span className="text-sm font-bold">WiFi & Food</span>
-                 </div>
+                 <div className="flex items-center gap-2"><Users size={20} className="text-blue-300" /> <span className="text-sm font-bold">Double Sharing</span></div>
+                 <div className="flex items-center gap-2"><CheckCircle size={20} className="text-blue-300" /> <span className="text-sm font-bold">WiFi & Food</span></div>
               </div>
             )}
             
-            {/* ✅ Button with Router Push */}
             <button 
               onClick={() => router.push(`/project/${id}`)}
               className="mt-6 w-full bg-white text-slate-900 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors"
@@ -379,7 +565,6 @@ function ModernCard({ id, image, title, location, price, rating, tag, isPG }) {
             </button>
           </div>
         </div>
-
       </div>
     </motion.div>
   );
