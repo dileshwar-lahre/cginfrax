@@ -1,93 +1,65 @@
-import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/db";
 import Property from "@/models/Property";
+import { NextResponse } from "next/server";
 
-// 1. GET 
-export async function GET(req) {
-  try {
-    await connectToDB();
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
-    const id = searchParams.get('id');
-
-    let properties;
-
-    if (id) {
-      properties = await Property.findById(id);
-      if (!properties) {
-        // Agar ID galat hai to 404 bhejo
-        return NextResponse.json({ success: false, message: "Property not found" }, { status: 404 });
-      }
-    } else if (email) {
-      properties = await Property.find({ userEmail: email }).sort({ createdAt: -1 });
-    } else {
-      properties = await Property.find().sort({ createdAt: -1 });
-    }
-
-    // App ke liye data ko 'success' aur 'data' key me wrap kiya
-    return NextResponse.json({ success: true, data: properties });
-
-  } catch (error) {
-    console.log(error); // Server console me error dekhne ke liye
-    return NextResponse.json({ success: false, message: "Error fetching data" }, { status: 500 });
-  }
-}
-
-// 2. POST 
+// --- 1. POST: Property Create Karne Ke Liye (Tera Purana Code) ---
 export async function POST(req) {
   try {
     await connectToDB();
-    const body = await req.json();
-    
-    const newProperty = await Property.create(body);
+    const data = await req.json();
 
-    // App ko naya data wapas bhejo taki screen refresh ho sake
-    return NextResponse.json({ 
-      success: true, 
-      message: "Property Created Successfully", 
-      data: newProperty 
-    }, { status: 201 });
+    const newProperty = await Property.create({
+      title: data.title,
+      desc: data.desc,
+      price: Number(data.price),
+      address: data.address,
+      district: data.district,
+      cat: data.cat,
+      images: data.images,
+      userEmail: data.userEmail,
+      details: data.details
+    });
 
+    return NextResponse.json(newProperty, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Error Creating Property" }, { status: 500 });
+    console.error("Dhamaka Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-// 3. PUT
-export async function PUT(req) {
+// --- 2. GET: Search & Filter Ke Saath Data Fetch Karne Ke Liye ---
+export async function GET(req) {
   try {
     await connectToDB();
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-    const body = await req.json();
-
-    if (!id) return NextResponse.json({ success: false, message: "ID Required" }, { status: 400 });
-
-    // { new: true } ka matlab hai ki update hone ke baad wala naya data return karo
-    const updatedProperty = await Property.findByIdAndUpdate(id, body, { new: true });
-
-    return NextResponse.json({ 
-      success: true, 
-      message: "Updated Successfully",
-      data: updatedProperty 
-    }, { status: 200 });
-
-  } catch (error) {
-    return NextResponse.json({ success: false, message: "Error Updating" }, { status: 500 });
-  }
-}
-
-// 4. DELETE
-export async function DELETE(req) {
-  try {
-    await connectToDB();
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
     
-    await Property.findByIdAndDelete(id);
+    // URL se query parameters nikalna
+    const { searchParams } = new URL(req.url);
+    const district = searchParams.get("district");
+    const search = searchParams.get("search");
+
+    let filter = {};
+
+    // A. District Filter: Agar "All" nahi hai toh district wise filter karo
+    if (district && district !== "All") {
+      filter.district = district;
+    }
+
+    // B. Smart Search: Title, Address ya Description mein dhundo (Regex Use Kiya)
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { address: { $regex: search, $options: "i" } },
+        { desc: { $regex: search, $options: "i" } },
+        { cat: { $regex: search, $options: "i" } } // Category bhi search ho sakegi
+      ];
+    }
+
+    // Data fetch karo (Naya wala pehle)
+    const allProperties = await Property.find(filter).sort({ createdAt: -1 });
     
-    return NextResponse.json({ success: true, message: "Property Deleted Successfully" }, { status: 200 });
+    return NextResponse.json(allProperties, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Error Deleting" }, { status: 500 });
+    console.error("Fetch Error:", error);
+    return NextResponse.json({ error: "Data fetch fail ho gaya bhai!" }, { status: 500 });
   }
 }

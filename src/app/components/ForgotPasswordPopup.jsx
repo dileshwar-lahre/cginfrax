@@ -8,14 +8,14 @@ const PhoneSearchBar = () => {
   const [showCities, setShowCities] = useState(false);
   const router = useRouter();
 
-  const cities = ["All", "Raipur", "Bilaspur", "Durg", "Bhilai", "Korba", "Rajnandgaon"];
+  const cities = ["All", "Raipur", "Bilaspur", "Durg", "Bhilai", "Korba", "Rajnandgaon", "Raigarh"];
 
   const handleSearch = () => {
     // Agar query khali hai toh saara data dikhao, warna filter karo
     if (query.trim() === "") {
-      router.push("/listing"); // Ya jo bhi tera listing page hai
+      router.push("/properties"); 
     } else {
-      router.push(`/listing?search=${query}`);
+      router.push(`/properties?search=${query}`);
     }
     setShowCities(false);
   };
@@ -23,7 +23,11 @@ const PhoneSearchBar = () => {
   const selectCity = (city) => {
     setQuery(city);
     setShowCities(false);
-    router.push(`/listing?district=${city}`); // Shehar select karte hi filter
+    if (city === "All") {
+      router.push(`/properties`);
+    } else {
+      router.push(`/properties?district=${city}`);
+    }
   };
 
   return (
@@ -70,6 +74,7 @@ const PhoneSearchBar = () => {
         </div>
       )}
 
+      {/* CSS in JS */}
       <style jsx>{`
         @keyframes slideDown {
           from { opacity: 0; transform: translateY(-10px); }

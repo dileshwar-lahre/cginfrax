@@ -4,7 +4,6 @@ import { AboutSection } from './components/AboutSection';
 import { ServicesSection } from './components/ServicesSection';
 
 // 👇 1. Project Page ko yahan import karein (Folder path ka dhyan rakhein)
-import ProjectPage from './project/page'; 
 
 export default function Home() {
   return (
@@ -31,9 +30,7 @@ export default function Home() {
 
       {/* 4. Projects Section */}
       {/* 👇 Ye naya section add kiya aur id="projects" di */}
-      <section id="projects">
-        <ProjectPage />
-      </section>
+      
 
       {/* Contact Section baad me add kar lena */}
     </main>

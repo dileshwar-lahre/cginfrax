@@ -1,21 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Eye, EyeOff } from "lucide-react";
+import { X, Eye, EyeOff, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { signIn } from "next-auth/react"; // NextAuth Import
-import { useRouter } from "next/navigation"; // Page refresh ke liye
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import ForgotPasswordPopup from "./ForgotPasswordPopup"; // ✅ Import kiya
 
 export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
   
-  // Loading & Error States
+  // --- STATES ---
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // ✅ New State: Forgot Password Popup dikhana hai ya nahi?
+  const [showForgot, setShowForgot] = useState(false);
 
   const [formData, setFormData] = useState({
-    email: "", // Changed Mobile to Email
+    email: "",
     password: "",
   });
 
@@ -26,6 +30,7 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
         setFormData({ email: "", password: "" });
         setError("");
         setLoading(false);
+        setShowForgot(false); // Reset state
       }, 300);
     }
   }, [isOpen]);
@@ -35,7 +40,7 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     setFormData({ ...formData, [name]: value });
   };
 
-  // --- API CALL HERE ---
+  // --- LOGIN API CALL ---
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -48,21 +53,19 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     }
 
     try {
-      // 1. NextAuth Credentials Login Call
       const res = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
-        redirect: false, // Page reload na ho isliye false
+        redirect: false,
       });
 
       if (res?.error) {
         setError("Invalid email or password!");
         setLoading(false);
       } else {
-        // 2. Success
-        router.refresh(); // Session update karne ke liye
-        onClose(); // Popup band karein
-        // alert("Logged in successfully!"); // Optional
+        router.refresh();
+        onClose();
+        // alert("Logged in successfully!");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -70,16 +73,27 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     }
   };
 
-  // --- GOOGLE LOGIN ---
   const handleGoogleLogin = () => {
-    signIn("google");
+    signIn("google", { callbackUrl: "/" });
   };
+
+  // ✅ LOGIC: Agar Forgot Password button dabaya hai, to wo wala popup dikhao
+  if (showForgot) {
+    return (
+      <ForgotPasswordPopup 
+        isOpen={true} 
+        onClose={onClose} // Pura band kar do
+        onSwitchToLogin={() => setShowForgot(false)} // Wapis Login pe aao
+      />
+    );
+  }
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[60] px-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative animate-fadeIn scale-100 transition-all">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[60] px-4 animate-fadeIn">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative scale-100 transition-all">
+        
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -96,9 +110,9 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
           Please enter your details to sign in
         </p>
 
-        {/* Error Message Display */}
+        {/* Error Message */}
         {error && (
-          <div className="bg-red-50 text-red-500 text-sm py-2 px-3 rounded-lg mb-4 text-center">
+          <div className="bg-red-50 text-red-500 text-sm py-2 px-3 rounded-lg mb-4 text-center border border-red-100">
             {error}
           </div>
         )}
@@ -110,8 +124,8 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               Email Address
             </label>
             <input
-              type="email" // Changed type to email
-              name="email" // Changed name to email
+              type="email"
+              name="email"
               required
               value={formData.email}
               onChange={handleChange}
@@ -125,10 +139,17 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               <label className="block text-gray-700 text-sm font-medium">
                 Password
               </label>
-              <a href="#" className="text-xs text-blue-600 hover:underline font-semibold">
+              
+              {/* ✅ UPDATED: Forgot Password Button */}
+              <button
+                type="button"
+                onClick={() => setShowForgot(true)}
+                className="text-xs text-blue-600 hover:underline font-semibold"
+              >
                 Forgot Password?
-              </a>
+              </button>
             </div>
+            
             <input
               type={showPassword ? "text" : "password"}
               name="password"
@@ -149,10 +170,10 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
 
           <button
             type="submit"
-            disabled={loading} // Disable button when loading
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? <Loader2 className="animate-spin" size={20} /> : "Sign In"}
           </button>
 
           {/* Continue with Google */}
@@ -167,11 +188,11 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
 
           <button
             type="button"
-            onClick={handleGoogleLogin} // API Call for Google
-            className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 hover:bg-gray-50 transition-all"
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 hover:bg-gray-50 transition-all text-gray-700 font-medium"
           >
             <FcGoogle size={22} />
-            <span className="text-gray-700 font-medium">Google</span>
+            <span>Google</span>
           </button>
 
           {/* Sign Up Link */}
