@@ -17,7 +17,8 @@ export default function PostPropertyPage() {
 
   const [formData, setFormData] = useState({
     title: "", price: "", address: "", district: "Raipur", desc: "", 
-    beds: "", baths: "", area: "", gender: "Both", sharing: "Single"
+    beds: "", baths: "", area: "", gender: "Both", sharing: "Single",
+    kitchen: "Not Available", plotType: "Residential"
   });
 
   const CATEGORIES = [
@@ -107,7 +108,9 @@ export default function PostPropertyPage() {
           baths: Number(formData.baths) || 0,
           area: Number(formData.area) || 0,
           gender: formData.gender,
-          sharing: formData.sharing
+          sharing: formData.sharing,
+          kitchen: formData.kitchen || "Not Available",
+          plotType: formData.plotType || "Residential"
         }
       };
 
@@ -166,6 +169,20 @@ export default function PostPropertyPage() {
                <>
                  <input type="number" placeholder="BHK" className="p-4 bg-white rounded-xl font-bold shadow-sm border-none outline-none" onChange={(e) => setFormData({...formData, beds: e.target.value})} />
                  <input type="number" placeholder="Baths" className="p-4 bg-white rounded-xl font-bold shadow-sm border-none outline-none" onChange={(e) => setFormData({...formData, baths: e.target.value})} />
+               </>
+             )}
+             {selectedCategory === 'Plot' && (
+               <select className="p-4 bg-white rounded-xl font-bold shadow-sm border-none outline-none" onChange={(e) => setFormData({...formData, plotType: e.target.value})}>
+                 <option value="Residential">Residential</option>
+                 <option value="Commercial">Commercial</option>
+               </select>
+             )}
+             {(selectedCategory === 'PG' || selectedCategory === 'Room' || selectedCategory === 'House') && (
+               <>
+                 <select className="p-4 bg-white rounded-xl font-bold shadow-sm border-none outline-none" onChange={(e) => setFormData({...formData, kitchen: e.target.value})}>
+                   <option value="Not Available">Kitchen: Not Available</option>
+                   <option value="Available">Kitchen: Available</option>
+                 </select>
                </>
              )}
              {(selectedCategory === 'PG' || selectedCategory === 'Room') && (

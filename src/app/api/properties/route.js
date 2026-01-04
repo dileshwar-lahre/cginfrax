@@ -33,6 +33,28 @@ export async function POST(req) {
     if (data.images && data.images.length > 5) {
       return NextResponse.json({ error: "Maximum 5 images allowed" }, { status: 400 });
     }
+    
+    // ✅ VALIDATION: Kitchen value (if provided)
+    if (data.details?.kitchen && !["Available", "Not Available"].includes(data.details.kitchen)) {
+      return NextResponse.json({ error: "Invalid kitchen value" }, { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Plot type (if provided)
+    if (data.details?.plotType && !["Residential", "Commercial"].includes(data.details.plotType)) {
+      return NextResponse.json({ error: "Invalid plot type" }, { status: 400 });
+    }
+    
+    // ✅ SECURITY: Sanitize inputs to prevent injection
+    const sanitizeString = (str) => {
+      if (typeof str !== 'string') return str;
+      return str.trim().replace(/[<>]/g, ''); // Remove potential XSS characters
+    };
+    
+    // Sanitize all string inputs
+    if (data.title) data.title = sanitizeString(data.title);
+    if (data.desc) data.desc = sanitizeString(data.desc);
+    if (data.address) data.address = sanitizeString(data.address);
+    if (data.district) data.district = sanitizeString(data.district);
 
     const newProperty = await Property.create({
       title: data.title,
@@ -46,6 +68,15 @@ export async function POST(req) {
       details: data.details
     });
 
+    // ✅ SEND EMAIL NOTIFICATIONS (10 per day max)
+    try {
+      const { notifyUsersAboutNewProperty } = await import("@/lib/emailNotifications");
+      await notifyUsersAboutNewProperty(newProperty);
+    } catch (emailError) {
+      console.error("Email notification error (non-blocking):", emailError);
+      // Don't fail the property creation if email fails
+    }
+
     return NextResponse.json(newProperty, { status: 201 });
   } catch (error) {
     console.error("Dhamaka Error:", error);
@@ -53,7 +84,7 @@ export async function POST(req) {
   }
 }
 
-// --- 2. GET: Search, District & Email Filter ---
+// --- 2. GET: Search, District & Email Filter with Pagination & Optimization ---
 export async function GET(req) {
   try {
     await connectToDB();
@@ -61,7 +92,17 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const district = searchParams.get("district");
     const search = searchParams.get("search");
-    const email = searchParams.get("email"); // 🔥 Naya: Email parameter pakda
+    const category = searchParams.get("category");
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    const email = searchParams.get("email");
+    const kitchen = searchParams.get("kitchen");
+    const plotType = searchParams.get("plotType");
+    
+    // ✅ PAGINATION: Default 20 items per page (100000 posts handle karne ke liye)
+    const page = parseInt(searchParams.get("page")) || 1;
+    const limit = parseInt(searchParams.get("limit")) || 20;
+    const skip = (page - 1) * limit;
 
     let filter = {};
 
@@ -71,24 +112,71 @@ export async function GET(req) {
     } 
     // B. Search/Home Page Logic: Agar email nahi hai, toh baki filters lagao
     else {
+      // District Filter
       if (district && district !== "All") {
         filter.district = district;
       }
 
+      // Category Filter
+      if (category && category !== "All") {
+        filter.cat = category;
+      }
+
+      // Price Range Filter (Optimized for large datasets)
+      if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) {
+          filter.price.$gte = Number(minPrice);
+        }
+        if (maxPrice) {
+          filter.price.$lte = Number(maxPrice);
+        }
+      }
+
+      // Kitchen Filter (for Room, PG, House)
+      if (kitchen && (category === "Room" || category === "PG" || category === "House")) {
+        filter["details.kitchen"] = kitchen;
+      }
+
+      // Plot Type Filter (for Plot)
+      if (plotType && category === "Plot") {
+        filter["details.plotType"] = plotType;
+      }
+
+      // Search Filter (Text search - Optimized with indexes)
       if (search) {
         filter.$or = [
           { title: { $regex: search, $options: "i" } },
           { address: { $regex: search, $options: "i" } },
           { desc: { $regex: search, $options: "i" } },
-          { cat: { $regex: search, $options: "i" } }
+          { district: { $regex: search, $options: "i" } }
         ];
       }
     }
 
-    // Data fetch karo (Latest first)
-    const allProperties = await Property.find(filter).sort({ createdAt: -1 });
+    // ✅ OPTIMIZED QUERY: Only fetch required fields + pagination
+    // Using lean() for better performance with large datasets
+    const [allProperties, totalCount] = await Promise.all([
+      Property.find(filter)
+        .select("title desc price cat address district images views likes userEmail details createdAt")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(), // Lean for faster queries
+      Property.countDocuments(filter) // Total count for pagination
+    ]);
     
-    return NextResponse.json(allProperties, { status: 200 });
+    return NextResponse.json({
+      properties: allProperties,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNext: page * limit < totalCount,
+        hasPrev: page > 1
+      }
+    }, { status: 200 });
   } catch (error) {
     console.error("Fetch Error:", error);
     return NextResponse.json({ error: "Data fetch fail ho gaya bhai!" }, { status: 500 });

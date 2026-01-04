@@ -15,7 +15,8 @@ export default function ListingPage() {
       try {
         const res = await fetch("/api/properties");
         const data = await res.json();
-        setProperties(data);
+        // Handle new pagination response format
+        setProperties(data.properties || data);
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -46,6 +47,60 @@ export default function ListingPage() {
     e.stopPropagation();
     const url = `https://wa.me/9131460470?text=Hello CG INFRAX, I am interested in: ${title}`;
     window.open(url, "_blank");
+  };
+
+  // ✅ BUY BUTTON HANDLER - Transaction create karta hai
+  const handleBuy = async (e, propertyId, propertyTitle) => {
+    e.stopPropagation();
+    
+    // ✅ Buyer ka phone number chahiye
+    let buyerPhone = session?.user?.mobile || session?.user?.phone;
+    
+    // Agar session me phone nahi hai, toh prompt karo
+    if (!buyerPhone) {
+      const phoneInput = prompt(
+        `📱 ${propertyTitle}\n\nAapka phone number enter karein (10 digits):`
+      );
+      
+      if (!phoneInput) return; // User ne cancel kiya
+      
+      // Phone validation
+      const phoneRegex = /^[6-9]\d{9}$/;
+      const cleanPhone = phoneInput.trim().replace(/\D/g, ""); // Sirf digits
+      
+      if (!phoneRegex.test(cleanPhone)) {
+        alert("❌ Invalid phone number! 10 digits hona chahiye (6-9 se start).");
+        return;
+      }
+      
+      buyerPhone = cleanPhone;
+    }
+
+    // ✅ Transaction create karo
+    try {
+      const res = await fetch("/api/transactions/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          propertyId,
+          buyerPhone,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert(
+          "✅ Success! Aapki inquiry save ho gayi hai. Seller ko notification bhej diya gaya hai. Aapka phone: " +
+            buyerPhone
+        );
+      } else {
+        alert("❌ Error: " + (data.message || "Kuch galat ho gaya"));
+      }
+    } catch (error) {
+      console.error("Buy error:", error);
+      alert("❌ Server error. Please try again.");
+    }
   };
 
   if (loading) return (
@@ -131,7 +186,10 @@ export default function ListingPage() {
                     >
                       <MessageCircle size={20} fill="currentColor" />
                     </button>
-                    <button className="bg-gray-900 text-white px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-blue-600 transition-all active:scale-90">
+                    <button 
+                      onClick={(e) => handleBuy(e, item._id, item.title)}
+                      className="bg-gray-900 text-white px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-blue-600 transition-all active:scale-90"
+                    >
                       <ShoppingBag size={16} /> Buy
                     </button>
                   </div>

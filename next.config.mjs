@@ -8,10 +8,53 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
     // Production mein image optimization enable rahega
     // Agar development mein issue aaye toh temporarily unoptimized: true kar sakte ho
     // unoptimized: process.env.NODE_ENV === 'development',
+  },
+  async rewrites() {
+    return [
+      // SEO-friendly URLs for categories and cities
+      {
+        source: '/rooms-in-bilaspur',
+        destination: '/listing?category=Room&district=Bilaspur',
+      },
+      {
+        source: '/rooms-in-raipur',
+        destination: '/listing?category=Room&district=Raipur',
+      },
+      {
+        source: '/pg-in-bilaspur',
+        destination: '/listing?category=PG&district=Bilaspur',
+      },
+      {
+        source: '/pg-in-raipur',
+        destination: '/listing?category=PG&district=Raipur',
+      },
+      {
+        source: '/houses-in-bilaspur',
+        destination: '/listing?category=House&district=Bilaspur',
+      },
+      {
+        source: '/houses-in-raipur',
+        destination: '/listing?category=House&district=Raipur',
+      },
+      {
+        source: '/plots-in-bilaspur',
+        destination: '/listing?category=Plot&district=Bilaspur',
+      },
+      {
+        source: '/plots-in-raipur',
+        destination: '/listing?category=Plot&district=Raipur',
+      },
+    ];
   },
 };
 

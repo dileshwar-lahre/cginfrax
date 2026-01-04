@@ -53,12 +53,13 @@ export const authOptions = {
         try {
           const existingUser = await User.findOne({ email: user.email });
           if (!existingUser) {
-            const randomMobile = "G-" + Math.floor(1000000000 + Math.random() * 9000000000).toString();
+            // ✅ Temporary mobile number (user will be prompted to update)
+            const tempMobile = "G-" + Math.floor(1000000000 + Math.random() * 9000000000).toString();
             const dummyPassword = await bcrypt.hash("google-auth-secret", 10);
             const newUser = new User({
               username: user.name,
               email: user.email,
-              mobile: randomMobile,
+              mobile: tempMobile, // User will be prompted to update this
               password: dummyPassword,
             });
             await newUser.save();

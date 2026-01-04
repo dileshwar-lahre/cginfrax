@@ -115,7 +115,9 @@ export default function EditPropertyPage() {
           baths: Number(formData.baths) || 0,
           area: Number(formData.area) || 0,
           gender: formData.gender,
-          sharing: formData.sharing
+          sharing: formData.sharing,
+          kitchen: formData.kitchen || "Not Available",
+          plotType: formData.plotType || "Residential"
         }
       };
 

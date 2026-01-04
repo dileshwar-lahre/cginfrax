@@ -11,6 +11,7 @@ import { Search, X } from 'lucide-react';
 
 import SignupPopup from "./SignupPopup";
 import LoginPopup from "./LoginPopup";
+import SearchBarWrapper from "./SearchBarWrapper";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -139,20 +140,9 @@ export default function Navbar() {
           {/* 3. RIGHT ACTIONS */}
           <div className="flex items-center gap-2 md:gap-4 z-10">
             
-            {/* DESKTOP SEARCH */}
-            <div className={`hidden md:flex items-center transition-all duration-300 ${searchOpen ? 'w-64 bg-gray-50' : 'w-10 bg-transparent'} rounded-full border ${searchOpen ? 'border-gray-200 pl-4 pr-2' : 'border-transparent justify-center'}`}>
-               {searchOpen && (
-                 <input 
-                   autoFocus type="text" placeholder="Search..." onBlur={() => setSearchOpen(false)}
-                   className="bg-transparent border-none outline-none text-sm w-full text-gray-700"
-                 />
-               )}
-               <button 
-                onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2 text-gray-600 hover:text-blue-600 transition-colors rounded-full hover:bg-gray-100"
-              >
-                 <Search size={20} strokeWidth={2.5} />
-               </button>
+            {/* DESKTOP SEARCH - Unified Search Bar */}
+            <div className="hidden md:flex items-center">
+              <SearchBarWrapper variant="desktop" />
             </div>
 
             {/* MOBILE SEARCH ICON */}
@@ -195,7 +185,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* --- MOBILE FLOATING SEARCH BAR --- */}
+        {/* --- MOBILE FLOATING SEARCH BAR - Unified Search Bar --- */}
         <AnimatePresence>
           {searchOpen && (
             <motion.div
@@ -203,13 +193,7 @@ export default function Navbar() {
               className="w-full bg-white md:hidden overflow-hidden border-b border-gray-100 shadow-sm z-10"
             >
               <div className="p-4 px-6">
-                <div className="relative flex items-center bg-gray-100 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-                  <Search className="text-gray-400 mr-3" size={20} strokeWidth={2.5} />
-                  <input 
-                    autoFocus type="text" placeholder="Search properties..." 
-                    className="bg-transparent border-none outline-none text-gray-700 w-full font-medium"
-                  />
-                </div>
+                <SearchBarWrapper variant="mobile" />
               </div>
             </motion.div>
           )}

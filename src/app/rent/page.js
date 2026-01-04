@@ -183,22 +183,11 @@ export default function RentPage() {
             </div>
 
             {/* 🔥 RESPONSIVE GRID LAYOUT 🔥 */}
-            <div className="
-                flex overflow-x-auto no-scrollbar gap-5 px-5 md:px-0 pb-5
-                md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-8 md:overflow-visible
-            ">
+            <div className="flex overflow-x-auto no-scrollbar gap-5 px-5 md:px-0 pb-5 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-8 md:overflow-visible">
               {getRoomProperties(city).map((item) => (
                 <div 
                   key={item.id} 
-                  className="
-                    group relative 
-                    min-w-[280px] w-[80vw] md:w-full 
-                    h-[360px] md:h-[380px] 
-                    rounded-[1.5rem] overflow-hidden 
-                    shadow-lg hover:shadow-2xl 
-                    transition-all duration-300 ease-out 
-                    md:hover:-translate-y-2 cursor-pointer bg-white
-                  "
+                  className="group relative min-w-[280px] w-[80vw] md:w-full h-[360px] md:h-[380px] rounded-[1.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 ease-out md:hover:-translate-y-2 cursor-pointer bg-white"
                 >
                   {/* Background Image */}
                   <img 
