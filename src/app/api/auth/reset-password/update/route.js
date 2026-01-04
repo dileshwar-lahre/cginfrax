@@ -8,8 +8,30 @@ import bcrypt from "bcryptjs";
 export async function POST(request) {
   try {
     const { email, otp, newPassword } = await request.json();
+    
+    // ✅ VALIDATION: Required fields
+    if (!email || !otp || !newPassword) {
+      return new NextResponse("Email, OTP, and new password are required", { status: 400 });
+    }
+    
     const cleanEmail = email.toLowerCase().trim();
     const cleanOtp = otp.trim();
+    
+    // ✅ VALIDATION: Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return new NextResponse("Invalid email format", { status: 400 });
+    }
+    
+    // ✅ VALIDATION: OTP format (6 digits)
+    if (!/^\d{6}$/.test(cleanOtp)) {
+      return new NextResponse("OTP must be 6 digits", { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Password strength
+    if (newPassword.length < 6) {
+      return new NextResponse("Password must be at least 6 characters long", { status: 400 });
+    }
 
     await connectToDB();
 

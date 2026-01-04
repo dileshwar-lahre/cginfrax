@@ -7,8 +7,20 @@ export async function POST(req) {
   try {
     const { fileName, fileType } = await req.json();
     
+    // ✅ SECURITY: File type validation
+    const allowedTypes = ['image/webp', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(fileType)) {
+      return NextResponse.json({ error: "Invalid file type. Only images are allowed." }, { status: 400 });
+    }
+    
+    // ✅ SECURITY: File name sanitization
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "-");
+    if (!sanitizedFileName || sanitizedFileName.length > 255) {
+      return NextResponse.json({ error: "Invalid file name" }, { status: 400 });
+    }
+    
     // File name ko unique banana taaki purani file override na ho
-    const uniqueFileName = `${Date.now()}-${fileName.replace(/\s+/g, "-")}.webp`;
+    const uniqueFileName = `${Date.now()}-${sanitizedFileName}.webp`;
 
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,

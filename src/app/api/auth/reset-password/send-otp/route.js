@@ -9,7 +9,19 @@ import nodemailer from "nodemailer";
 export async function POST(request) {
   try {
     const { email } = await request.json();
+    
+    // ✅ VALIDATION: Email required
+    if (!email) {
+      return new NextResponse("Email is required", { status: 400 });
+    }
+    
     const cleanEmail = email.toLowerCase().trim();
+    
+    // ✅ VALIDATION: Email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return new NextResponse("Invalid email format", { status: 400 });
+    }
 
     await connectToDB();
 

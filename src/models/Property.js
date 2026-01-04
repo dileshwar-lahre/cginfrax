@@ -17,11 +17,10 @@ const PropertySchema = new mongoose.Schema({
   
   // Stats for popularity
   views: { type: Number, default: 0 },
-  // models/Property.js
-likes: {
-  type: [String], // Array of user emails
-  default: [],    // Shuruat mein khali array
-},
+  likes: {
+    type: [String], // Array of user emails
+    default: [],    // Shuruat mein khali array
+  },
   // Flexible details (Sqft included)
   details: {
     beds: Number,

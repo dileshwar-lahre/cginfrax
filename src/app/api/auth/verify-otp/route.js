@@ -5,8 +5,25 @@ import { Otp } from "@/models/Otp";
 export const POST = async (request) => {
   try {
     const body = await request.json();
+    
+    // ✅ VALIDATION: Required fields
+    if (!body.email || !body.otp) {
+      return new NextResponse("Email and OTP are required", { status: 400 });
+    }
+    
     const email = body.email.toLowerCase().trim();
     const otp = body.otp.trim();
+    
+    // ✅ VALIDATION: OTP format (6 digits)
+    if (!/^\d{6}$/.test(otp)) {
+      return new NextResponse("OTP must be 6 digits", { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return new NextResponse("Invalid email format", { status: 400 });
+    }
 
     await connectToDB();
 

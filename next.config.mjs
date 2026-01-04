@@ -9,8 +9,9 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-    // Agar private IP ka panga phir bhi aaye toh ye line add kar dena
-    unoptimized: true, 
+    // Production mein image optimization enable rahega
+    // Agar development mein issue aaye toh temporarily unoptimized: true kar sakte ho
+    // unoptimized: process.env.NODE_ENV === 'development',
   },
 };
 

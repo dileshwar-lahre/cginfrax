@@ -85,8 +85,27 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
   // STEP 1: SEND OTP
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || formData.mobile.length !== 10) {
+    
+    // ✅ VALIDATION: Required fields
+    if (!formData.name || !formData.email || !formData.mobile) {
       return alert("Please fill all details correctly.");
+    }
+    
+    // ✅ VALIDATION: Mobile number format (10 digits, starting with 6-9)
+    const mobileRegex = /^[6-9]\d{9}$/;
+    if (!mobileRegex.test(formData.mobile)) {
+      return alert("Invalid mobile number. Must be 10 digits starting with 6-9.");
+    }
+    
+    // ✅ VALIDATION: Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      return alert("Please enter a valid email address.");
+    }
+    
+    // ✅ VALIDATION: Name length
+    if (formData.name.trim().length < 2) {
+      return alert("Name must be at least 2 characters long.");
     }
 
     setLoading(true);

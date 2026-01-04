@@ -18,20 +18,31 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
+        }
+        
         await connectToDB();
         try {
-          const user = await User.findOne({ email: credentials.email });
-          if (user) {
-            const isPasswordCorrect = await bcrypt.compare(
-              credentials.password,
-              user.password
-            );
-            if (isPasswordCorrect) return user;
+          const user = await User.findOne({ email: credentials.email.toLowerCase().trim() });
+          if (!user) {
+            throw new Error("Invalid email or password");
           }
+          
+          const isPasswordCorrect = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+          
+          if (!isPasswordCorrect) {
+            throw new Error("Invalid email or password");
+          }
+          
+          return user;
         } catch (err) {
-          throw new Error(err);
+          console.error("Auth Error:", err);
+          throw new Error(err.message || "Authentication failed");
         }
-        return null;
       },
     }),
   ],

@@ -4,37 +4,34 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { LogOut, User, Mail, Heart, Shield, X, UploadCloud, MapPin, Trash2, IndianRupee, Pencil } from "lucide-react"; 
+import { LogOut, User, Mail, UploadCloud, MapPin, Trash2, IndianRupee, Pencil, X } from "lucide-react"; 
 import { motion } from "framer-motion";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   
-  // State for user properties - Default empty array
   const [myProperties, setMyProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Check Authentication
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/");
     }
   }, [status, router]);
 
-  // 2. Fetch User Properties
   useEffect(() => {
     const fetchMyProperties = async () => {
       if (session?.user?.email) {
         try {
+          // Fetch properties by email
           const res = await fetch(`/api/properties?email=${session.user.email}`);
           const data = await res.json();
           
-          // ✅ FIX: Check kar rahe hain ki data array hai ya nahi
           if (Array.isArray(data)) {
             setMyProperties(data);
           } else {
-            setMyProperties([]); // Agar array nahi hai toh khali kar do
+            setMyProperties([]); 
           }
         } catch (error) {
           console.error("Error fetching properties:", error);
@@ -50,18 +47,25 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  // 3. Delete Property Function
+  // ✅ UPDATED: Delete Function (Matches your new API route)
   const handleDelete = async (id) => {
-    if(!confirm("Are you sure you want to delete this property?")) return;
+    if(!confirm("Bhai, sach mein delete karna hai?")) return;
 
     try {
-      const res = await fetch(`/api/properties?id=${id}`, { method: "DELETE" });
+      // Dynamic route ko hit kar rahe hain: /api/properties/[id]
+      const res = await fetch(`/api/properties/${id}`, { 
+        method: "DELETE" 
+      });
+
       if (res.ok) {
         setMyProperties(myProperties.filter((prop) => prop._id !== id));
-        alert("Property deleted!");
+        alert("Property delete ho gayi! ✅");
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Delete nahi ho paya");
       }
     } catch (error) {
-      alert("Failed to delete");
+      alert("Network error: Failed to delete");
     }
   };
 
@@ -94,14 +98,13 @@ export default function ProfilePage() {
           
           <div className="h-48 bg-gradient-to-r from-blue-600 to-indigo-700 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-             <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -ml-10 -mb-10"></div>
           </div>
 
           <div className="px-8 pb-10 relative">
             <div className="flex flex-col md:flex-row items-center md:items-end -mt-20 mb-8 gap-6">
               
               <div className="relative group">
-                <div className="w-36 h-36 md:w-44 md:h-44 rounded-full border-[6px] border-white shadow-xl overflow-hidden bg-white flex items-center justify-center">
+                <div className="w-36 h-36 md:w-44 md:h-44 rounded-full border-[6px] border-white shadow-xl overflow-hidden bg-white flex items-center justify-center relative">
                   {session?.user?.image ? (
                     <Image src={session.user.image} alt="Profile" fill className="object-cover" />
                   ) : (
@@ -136,20 +139,24 @@ export default function ProfilePage() {
 
                 {loading ? (
                     <p className="text-gray-500">Loading your properties...</p>
-                ) : (!myProperties || myProperties.length === 0) ? (
+                ) : (myProperties.length === 0) ? (
                     <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
                         <p className="text-gray-500 font-medium mb-4">You haven't uploaded any properties yet.</p>
                         <button onClick={() => router.push('/upload')} className="text-blue-600 font-bold hover:underline">Upload Now</button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* ✅ FIX: Yahan safe mapping use ki hai */}
-                        {Array.isArray(myProperties) && myProperties.map((prop) => (
+                        {myProperties.map((prop) => (
                             <div key={prop._id} className="flex bg-white border border-gray-100 rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow">
-                                <div className="relative w-32 h-32 rounded-xl overflow-hidden flex-shrink-0">
-                                    <Image src={prop.imageUrl || "/placeholder.jpg"} alt={prop.title} fill className="object-cover" />
+                                <div className="relative w-32 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                                    <Image 
+                                      src={prop.images?.[0] || "/placeholder.jpg"} 
+                                      alt={prop.title} 
+                                      fill 
+                                      className="object-cover" 
+                                    />
                                     <div className="absolute top-2 left-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">
-                                        {prop.status}
+                                        {prop.cat}
                                     </div>
                                 </div>
                                 
@@ -157,22 +164,24 @@ export default function ProfilePage() {
                                     <div>
                                         <h3 className="font-bold text-gray-900 line-clamp-1">{prop.title}</h3>
                                         <p className="text-gray-500 text-sm flex items-center gap-1 mt-1">
-                                            <MapPin size={12} /> {prop.location}
+                                            <MapPin size={12} /> {prop.district}
                                         </p>
                                         <p className="text-blue-600 font-bold flex items-center gap-1 mt-2">
-                                            <IndianRupee size={14} /> {prop.price}
+                                            <IndianRupee size={14} /> {prop.price?.toLocaleString('en-IN')}
                                         </p>
                                     </div>
                                     
                                     <div className="flex justify-end gap-2 mt-2">
+                                        {/* EDIT BUTTON */}
                                         <button 
-                                            onClick={() => router.push(`/edit-property/${prop._id}`)} 
+                                            onClick={() => router.push(`/properties/edit/${prop._id}`)} 
                                             className="text-blue-500 hover:bg-blue-50 p-2 rounded-full transition-colors"
                                             title="Edit Property"
                                         >
                                             <Pencil size={18} />
                                         </button>
 
+                                        {/* DELETE BUTTON */}
                                         <button 
                                             onClick={() => handleDelete(prop._id)}
                                             className="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"

@@ -2,11 +2,37 @@ import { connectToDB } from "@/lib/db";
 import Property from "@/models/Property";
 import { NextResponse } from "next/server";
 
-// --- 1. POST: Property Create Karne Ke Liye (Tera Purana Code) ---
+// --- 1. POST: Property Create Karne Ke Liye ---
 export async function POST(req) {
   try {
     await connectToDB();
     const data = await req.json();
+    
+    // ✅ VALIDATION: Required fields
+    if (!data.title || !data.price || !data.address || !data.district || !data.cat || !data.userEmail) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.userEmail)) {
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Price must be positive
+    if (Number(data.price) <= 0) {
+      return NextResponse.json({ error: "Price must be greater than 0" }, { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Title length
+    if (data.title.length > 60) {
+      return NextResponse.json({ error: "Title must be 60 characters or less" }, { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Images limit
+    if (data.images && data.images.length > 5) {
+      return NextResponse.json({ error: "Maximum 5 images allowed" }, { status: 400 });
+    }
 
     const newProperty = await Property.create({
       title: data.title,
@@ -16,7 +42,7 @@ export async function POST(req) {
       district: data.district,
       cat: data.cat,
       images: data.images,
-      userEmail: data.userEmail,
+      userEmail: data.userEmail, // Pakka karna ki frontend se userEmail hi aa raha hai
       details: data.details
     });
 
@@ -27,34 +53,39 @@ export async function POST(req) {
   }
 }
 
-// --- 2. GET: Search & Filter Ke Saath Data Fetch Karne Ke Liye ---
+// --- 2. GET: Search, District & Email Filter ---
 export async function GET(req) {
   try {
     await connectToDB();
     
-    // URL se query parameters nikalna
     const { searchParams } = new URL(req.url);
     const district = searchParams.get("district");
     const search = searchParams.get("search");
+    const email = searchParams.get("email"); // 🔥 Naya: Email parameter pakda
 
     let filter = {};
 
-    // A. District Filter: Agar "All" nahi hai toh district wise filter karo
-    if (district && district !== "All") {
-      filter.district = district;
+    // A. Profile Page Logic: Agar email aaya hai, toh sirf usi user ki property dikhao
+    if (email) {
+      filter.userEmail = email; 
+    } 
+    // B. Search/Home Page Logic: Agar email nahi hai, toh baki filters lagao
+    else {
+      if (district && district !== "All") {
+        filter.district = district;
+      }
+
+      if (search) {
+        filter.$or = [
+          { title: { $regex: search, $options: "i" } },
+          { address: { $regex: search, $options: "i" } },
+          { desc: { $regex: search, $options: "i" } },
+          { cat: { $regex: search, $options: "i" } }
+        ];
+      }
     }
 
-    // B. Smart Search: Title, Address ya Description mein dhundo (Regex Use Kiya)
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { address: { $regex: search, $options: "i" } },
-        { desc: { $regex: search, $options: "i" } },
-        { cat: { $regex: search, $options: "i" } } // Category bhi search ho sakegi
-      ];
-    }
-
-    // Data fetch karo (Naya wala pehle)
+    // Data fetch karo (Latest first)
     const allProperties = await Property.find(filter).sort({ createdAt: -1 });
     
     return NextResponse.json(allProperties, { status: 200 });

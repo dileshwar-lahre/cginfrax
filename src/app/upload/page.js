@@ -55,7 +55,31 @@ export default function PostPropertyPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (images.length === 0) return alert("Photo dalo bhai!");
+    
+    // ✅ VALIDATION: Images required
+    if (images.length === 0) {
+      alert("Please upload at least one photo!");
+      return;
+    }
+    
+    // ✅ VALIDATION: Required fields
+    if (!formData.title || !formData.price || !formData.address || !formData.district) {
+      alert("Please fill all required fields!");
+      return;
+    }
+    
+    // ✅ VALIDATION: Price must be positive
+    if (Number(formData.price) <= 0) {
+      alert("Price must be greater than 0!");
+      return;
+    }
+    
+    // ✅ VALIDATION: Title length
+    if (formData.title.length > 60) {
+      alert("Title must be 60 characters or less!");
+      return;
+    }
+    
     setLoading(true);
 
     try {

@@ -8,11 +8,29 @@ import bcrypt from "bcryptjs";
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
+    
+    // ✅ VALIDATION: Required fields
+    if (!email || !password) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "Email and password are required" 
+      }, { status: 400 });
+    }
+    
+    // ✅ VALIDATION: Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const cleanEmail = email.toLowerCase().trim();
+    if (!emailRegex.test(cleanEmail)) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "Invalid email format" 
+      }, { status: 400 });
+    }
 
     await connectToDB();
 
     // 1. User dhundo
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: cleanEmail });
     
     // Agar user nahi mila
     if (!user) {
