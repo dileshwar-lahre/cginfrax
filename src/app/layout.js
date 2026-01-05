@@ -1,18 +1,14 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import Topbar from "./components/Topbar";
 import PhoneSearchBar from "./components/Phonesearchbar";
 import Footer from "./components/Footer";
-import AuthProvider from "./components/AuthProvider"; // 👈 Ye naya import hai
+import AuthProvider from "./components/AuthProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
 });
 
 export const metadata = {
@@ -39,17 +35,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* 👇 Yahan AuthProvider shuru hua */}
+      <body className={`${outfit.variable} font-sans antialiased`}>
         <AuthProvider>
           <Topbar />
           <PhoneSearchBar />
           {children}
           <Footer />
         </AuthProvider>
-        {/* 👆 Yahan AuthProvider khatam hua */}
       </body>
     </html>
   );

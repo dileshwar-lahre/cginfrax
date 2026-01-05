@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Addpopup from './Addpopup';
+
 import { 
   Search, MapPin, Home, TrendingUp, SlidersHorizontal, 
   ArrowRight, BedDouble, Bath, Square, PlayCircle, Star, Users, CheckCircle,
@@ -123,7 +125,7 @@ function MobileView() {
           ))}
         </div>
       </div>
-
+   
       {/* --- FEATURED PROPERTIES --- */}
       <div className="flex justify-between items-end mb-4">
         <h2 className="text-lg font-bold text-[#1A1E25]">Featured Properties</h2>
@@ -144,6 +146,10 @@ function MobileView() {
             price="₹ 15k /mo" title="4 BHK Penthouse" address="Civil Lines" tag="RENT" 
          />
       </div>
+         <div className="mb-8">
+        <Addpopup />
+      </div>
+
 
       {/* --- RECOMMENDED --- */}
       <h2 className="text-lg font-bold text-[#1A1E25] mb-4 mt-2">Recommended For You</h2>
@@ -567,5 +573,6 @@ function ModernCard({ id, image, title, location, price, rating, tag, isPG }) {
         </div>
       </div>
     </motion.div>
+    
   );
 }

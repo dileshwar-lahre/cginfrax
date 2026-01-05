@@ -113,7 +113,7 @@ export default function ListingPage() {
     <div className="max-w-7xl mx-auto p-4 md:p-10 py-16 md:py-24 bg-[#FAFAFA]">
       <div className="mb-8 md:mb-12 px-2">
         <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter">PREMIUM PROPERTIES</h1>
-        <p className="text-gray-400 font-bold mt-2 tracking-widest uppercase text-[10px] md:text-xs">Explore Chhattisgarh's Finest Real Estate</p>
+        <p className="text-gray-400 font-bold mt-2 tracking-widest uppercase text-[10px] md:text-xs">Explore Chhattisgarh&apos;s Finest Real Estate</p>
       </div>
       
       {/* Grid: 1 col on mobile, 2 on tablet, 3 on desktop */}

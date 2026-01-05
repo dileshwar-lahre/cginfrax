@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { LogOut, User, Mail, UploadCloud, MapPin, Trash2, IndianRupee, Pencil, X } from "lucide-react";
+import { LogOut, User, Mail, UploadCloud, MapPin, Trash2, IndianRupee, Pencil, X, Eye, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ProfilePage() {
@@ -14,20 +14,26 @@ export default function ProfilePage() {
   const [myProperties, setMyProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 1. Fetch only My Properties
   useEffect(() => {
     const fetchMyProperties = async () => {
       if (status === "loading") return;
       
+      // Strict check: No email = No fetch
       if (!session?.user?.email) {
         setLoading(false);
         return;
       }
 
       try {
+        // API call with email filter
         const res = await fetch(`/api/properties?email=${session.user.email}`);
         const data = await res.json();
         
-        if (Array.isArray(data)) {
+        // Handle API response format { properties: [], pagination: {} }
+        if (data.properties && Array.isArray(data.properties)) {
+          setMyProperties(data.properties);
+        } else if (Array.isArray(data)) {
           setMyProperties(data);
         } else {
           setMyProperties([]);
@@ -44,7 +50,7 @@ export default function ProfilePage() {
   }, [session, status]);
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this property?")) return;
+    if (!confirm("Confirm Delete? Ye property hamesha ke liye delete ho jayegi.")) return;
 
     try {
       const res = await fetch(`/api/properties/${id}`, {
@@ -53,13 +59,12 @@ export default function ProfilePage() {
 
       if (res.ok) {
         setMyProperties((prev) => prev.filter((prop) => prop._id !== id));
-        alert("Property delete ho gayi! ✅");
       } else {
         const errData = await res.json();
-        alert(errData.error || "Delete nahi ho paya");
+        alert(errData.error || "Delete failed");
       }
     } catch (error) {
-      alert("Network error: Failed to delete");
+      alert("Network error");
     }
   };
 
@@ -127,53 +132,82 @@ export default function ProfilePage() {
             <hr className="border-gray-100 mb-8" />
 
             <div>
-                <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
-                    My Listed Properties <span className="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{myProperties?.length || 0}</span>
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                        My Dashboard 
+                        <span className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full border border-blue-200">
+                           {myProperties?.length || 0} Posts
+                        </span>
+                    </h2>
+                </div>
 
                 {loading ? (
-                    <p className="text-gray-500">Loading your properties...</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
+                         {[1,2,3].map(i => <div key={i} className="h-64 bg-gray-200 rounded-2xl"></div>)}
+                    </div>
                 ) : (myProperties.length === 0) ? (
-                    <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
-                        <p className="text-gray-500">You haven't listed any properties yet.</p>
+                    <div className="text-center py-16 bg-blue-50/50 rounded-[2rem] border-2 border-dashed border-blue-200">
+                        <UploadCloud size={60} className="mx-auto text-blue-300 mb-4" />
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">No Posts Yet</h3>
+                        <p className="text-gray-500 mb-6">Start your journey by uploading your first property.</p>
+                        <button onClick={() => router.push('/upload')} className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition-all">
+                            Create New Post
+                        </button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {myProperties.map((prop) => (
-                            <div key={prop._id} className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden group">
-                                <div className="h-48 bg-gray-200 relative">
+                            <div key={prop._id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group flex flex-col">
+                                {/* Image & Overlay */}
+                                <div className="h-48 relative overflow-hidden">
                                     {prop.images && prop.images.length > 0 ? (
-                                         <Image src={prop.images[0]} alt={prop.title} fill className="object-cover" />
+                                         <Image 
+                                            src={prop.images[0]} 
+                                            alt={prop.title} 
+                                            fill 
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                                         />
                                     ) : (
-                                        <div className="flex items-center justify-center h-full text-gray-400">
+                                        <div className="flex items-center justify-center h-full bg-gray-100 text-gray-400">
                                             <UploadCloud size={30} />
                                         </div>
                                     )}
+                                    <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full font-bold">
+                                        {prop.cat}
+                                    </div>
                                 </div>
-                                <div className="p-4">
-                                    <h3 className="font-bold text-lg text-gray-900 truncate">{prop.title}</h3>
-                                    <p className="text-gray-500 text-sm flex items-center gap-1 mt-1">
-                                        <MapPin size={12} /> {prop.district}
-                                    </p>
-                                    <p className="text-blue-600 font-bold flex items-center gap-1 mt-2">
-                                        <IndianRupee size={14} /> {prop.price?.toLocaleString('en-IN')}
-                                    </p>
+
+                                {/* Content */}
+                                <div className="p-5 flex-1 flex flex-col">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h3 className="font-bold text-lg text-gray-900 truncate flex-1 pr-2" title={prop.title}>{prop.title}</h3>
+                                        <span className="text-blue-600 font-black whitespace-nowrap">₹ {prop.price?.toLocaleString('en-IN')}</span>
+                                    </div>
                                     
-                                    <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-50">
+                                    <p className="text-gray-500 text-sm flex items-center gap-1 mb-4">
+                                        <MapPin size={14} className="text-gray-400" /> {prop.district}
+                                    </p>
+
+                                    {/* Stats Row */}
+                                    <div className="flex items-center gap-4 text-xs text-gray-500 font-semibold bg-gray-50 p-3 rounded-xl mb-4">
+                                        <span className="flex items-center gap-1"><Eye size={14} className="text-blue-400"/> {prop.views || 0} Views</span>
+                                        <span className="flex items-center gap-1"><Heart size={14} className="text-red-400"/> {prop.likes?.length || 0} Likes</span>
+                                    </div>
+                                    
+                                    {/* Actions */}
+                                    <div className="mt-auto grid grid-cols-2 gap-3">
                                         <button 
                                             onClick={() => router.push(`/properties/edit/${prop._id}`)} 
-                                            className="text-blue-500 hover:bg-blue-50 p-2 rounded-full transition-colors"
-                                            title="Edit Property"
+                                            className="flex items-center justify-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white py-2.5 rounded-xl font-bold transition-all text-sm"
                                         >
-                                            <Pencil size={18} />
+                                            <Pencil size={16} /> Edit
                                         </button>
 
                                         <button 
                                             onClick={() => handleDelete(prop._id)}
-                                            className="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"
-                                            title="Delete Property"
+                                            className="flex items-center justify-center gap-2 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white py-2.5 rounded-xl font-bold transition-all text-sm"
                                         >
-                                            <Trash2 size={18} />
+                                            <Trash2 size={16} /> Delete
                                         </button>
                                     </div>
                                 </div>
