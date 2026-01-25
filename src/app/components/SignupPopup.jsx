@@ -86,24 +86,21 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
   const handleSendOtp = async (e) => {
     e.preventDefault();
     
-    // ✅ VALIDATION: Required fields
+    // ✅ VALIDATION
     if (!formData.name || !formData.email || !formData.mobile) {
       return alert("Please fill all details correctly.");
     }
     
-    // ✅ VALIDATION: Mobile number format (10 digits, starting with 6-9)
     const mobileRegex = /^[6-9]\d{9}$/;
     if (!mobileRegex.test(formData.mobile)) {
       return alert("Invalid mobile number. Must be 10 digits starting with 6-9.");
     }
     
-    // ✅ VALIDATION: Email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       return alert("Please enter a valid email address.");
     }
     
-    // ✅ VALIDATION: Name length
     if (formData.name.trim().length < 2) {
       return alert("Name must be at least 2 characters long.");
     }
@@ -111,7 +108,6 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
     setLoading(true);
     
     try {
-      // ✅ API CALL: SEND OTP
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,7 +118,7 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
         setStep(2); // Move to OTP Step
         setTimer(30);
         setCanResend(false);
-        alert(`✅ OTP sent to ${formData.email}`);
+        // alert(`✅ OTP sent to ${formData.email}`);
       } else {
         const msg = await res.text();
         alert(`❌ Error: ${msg}`);
@@ -144,7 +140,6 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
     setLoading(true);
 
     try {
-      // ✅ API CALL: VERIFY OTP
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,7 +148,7 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
 
       if (res.ok) {
         setStep(3); // Move to Password Step
-        alert("✅ Email Verified Successfully!");
+        // alert("✅ Email Verified Successfully!");
       } else {
         alert("❌ Invalid or Expired OTP");
       }
@@ -174,9 +169,8 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
     setLoading(true);
 
     try {
-      // ✅ API CALL: FINAL SIGNUP
       const finalPayload = {
-        username: formData.name, // Mapping 'name' to 'username' for backend
+        username: formData.name, 
         email: formData.email,
         mobile: formData.mobile,
         password: formData.password
@@ -189,7 +183,7 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
       });
 
       if (res.ok) {
-        alert("🎉 Account Created Successfully! Logging you in...");
+        alert("🎉 Account Created Successfully! Please Login.");
         onClose(); // Close Popup
         onSwitchToLogin(); // Open Login Popup
       } else {
@@ -226,6 +220,12 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // ✅ GOOGLE SIGNUP FIX
+  const handleGoogleSignup = async () => {
+    setLoading(true);
+    await signIn("google", { callbackUrl: window.location.origin });
   };
 
   if (!isOpen) return null;
@@ -284,7 +284,7 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Email Address (OTP will be sent here)"
+                    placeholder="Email Address"
                     className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 focus:bg-white transition-all"
                   />
                 </div>
@@ -309,7 +309,7 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
             {/* --- STEP 2: OTP --- */}
             {step === 2 && (
               <div className="animate-fadeIn">
-                 <div className="flex justify-center gap-3 mb-6">
+                  <div className="flex justify-center gap-3 mb-6">
                     {otp.map((data, index) => (
                       <input
                         key={index}
@@ -322,16 +322,16 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
                         className="w-12 h-12 md:w-14 md:h-14 border border-gray-300 rounded-xl text-center text-xl font-bold focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                       />
                     ))}
-                 </div>
-                 
-                 <div className="flex justify-between items-center text-sm">
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-sm">
                     <button type="button" onClick={() => setStep(1)} className="text-gray-500 hover:text-gray-800">Change Email?</button>
                     {canResend ? (
                         <button type="button" onClick={handleResendOtp} className="text-blue-600 font-bold hover:underline">Resend OTP</button>
                     ) : (
                         <span className="text-gray-400">Resend in {timer}s</span>
                     )}
-                 </div>
+                  </div>
               </div>
             )}
 
@@ -402,7 +402,7 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
               </div>
 
               <button 
-                onClick={() => signIn("google")}
+                onClick={handleGoogleSignup}
                 className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 hover:bg-gray-50 transition-all text-gray-700 font-medium"
               >
                 <FcGoogle size={22} /> Google

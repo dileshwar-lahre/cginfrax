@@ -5,7 +5,7 @@ import { X, Eye, EyeOff, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ForgotPasswordPopup from "./ForgotPasswordPopup"; // ✅ Import kiya
+import ForgotPasswordPopup from "./ForgotPasswordPopup"; 
 
 export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
   const router = useRouter();
@@ -14,8 +14,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
-  // ✅ New State: Forgot Password Popup dikhana hai ya nahi?
   const [showForgot, setShowForgot] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -30,7 +28,7 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
         setFormData({ email: "", password: "" });
         setError("");
         setLoading(false);
-        setShowForgot(false); // Reset state
+        setShowForgot(false);
       }, 300);
     }
   }, [isOpen]);
@@ -65,7 +63,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
       } else {
         router.refresh();
         onClose();
-        // alert("Logged in successfully!");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -73,17 +70,19 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     }
   };
 
-  const handleGoogleLogin = () => {
-    signIn("google", { callbackUrl: "/" });
+  // ✅ GOOGLE LOGIN FIX
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    // callbackUrl window.location.origin use karega, jo live site par 'https://www.cginfrax.com' hoga
+    await signIn("google", { callbackUrl: window.location.origin });
   };
 
-  // ✅ LOGIC: Agar Forgot Password button dabaya hai, to wo wala popup dikhao
   if (showForgot) {
     return (
       <ForgotPasswordPopup 
         isOpen={true} 
-        onClose={onClose} // Pura band kar do
-        onSwitchToLogin={() => setShowForgot(false)} // Wapis Login pe aao
+        onClose={onClose} 
+        onSwitchToLogin={() => setShowForgot(false)} 
       />
     );
   }
@@ -140,7 +139,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
                 Password
               </label>
               
-              {/* ✅ UPDATED: Forgot Password Button */}
               <button
                 type="button"
                 onClick={() => setShowForgot(true)}
@@ -157,7 +155,7 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
             />
             <button
               type="button"
@@ -195,7 +193,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
             <span>Google</span>
           </button>
 
-          {/* Sign Up Link */}
           <p className="text-center text-sm text-gray-600 mt-2">
             Don't have an account?{" "}
             <button
