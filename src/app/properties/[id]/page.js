@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { 
   MapPin, Bed, Bath, Move, Phone, ArrowLeft, Share2, 
   Heart, Eye, Pencil, Trash2, MessageCircle 
-} from "lucide-react"; // MessageCircle add kiya WhatsApp ke liye
+} from "lucide-react"; 
 
 export default function PropertyDetails() {
   const { id } = useParams();
@@ -66,7 +66,7 @@ export default function PropertyDetails() {
 
   // 🔥 WHATSAPP FUNCTION
   const handleWhatsApp = () => {
-    const phone = property.phoneNumber || '9131460470'; // Owner ka number
+    const phone = property.phoneNumber || '9131460470'; 
     const message = `Hi, I saw your property "${property.title}" on the app. Is it still available?`;
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
@@ -78,7 +78,7 @@ export default function PropertyDetails() {
   const isOwner = session?.user?.email === property.userEmail;
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] pb-36 relative"> {/* pb-36 kiya taaki bottom buttons content na chupaye */}
+    <div className="min-h-screen bg-[#FDFDFD] pb-32 relative">
       
       {/* Top Navigation */}
       <div className="flex justify-between items-center p-6 sticky top-0 z-40 bg-[#FDFDFD]/80 backdrop-blur-md">
@@ -127,7 +127,6 @@ export default function PropertyDetails() {
         
         {/* 🔥 STATS & PRICE ROW */}
         <div className="flex flex-wrap justify-between items-end gap-4">
-           {/* Views & Likes - Stylish Badge */}
           <div className="flex gap-3">
             <div className="flex items-center gap-2 bg-gray-900 px-4 py-2 rounded-2xl text-white font-bold text-xs shadow-lg shadow-gray-200">
               <Eye size={14} className="text-gray-400" /> {property.views || 0} Views
@@ -177,26 +176,26 @@ export default function PropertyDetails() {
         </div>
       </div>
 
-      {/* 🔥 STICKY BOTTOM ACTION BAR (WhatsApp & Call) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 p-4 pb-8 z-50">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 gap-4">
+      {/* 🔥 COMPACT & MODERN BOTTOM ACTION BAR */}
+      <div className="fixed bottom-6 left-0 right-0 z-50 px-6">
+        <div className="max-w-md mx-auto flex gap-3 p-2 bg-white/90 backdrop-blur-2xl border border-white/50 rounded-full shadow-2xl shadow-gray-300/50">
           
-          {/* WhatsApp Button */}
+          {/* WhatsApp Button - Pill Shape */}
           <button 
             onClick={handleWhatsApp}
-            className="flex flex-col md:flex-row items-center justify-center gap-2 bg-[#25D366] text-white py-4 rounded-[2rem] shadow-lg shadow-green-100 hover:bg-green-500 active:scale-95 transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white h-12 rounded-full transition-all active:scale-95 shadow-md shadow-green-200"
           >
-            <MessageCircle size={24} fill="white" className="text-white" />
-            <span className="font-black text-lg">WhatsApp</span>
+            <MessageCircle size={20} fill="white" className="text-white" />
+            <span className="font-bold text-sm tracking-wide">WhatsApp</span>
           </button>
 
-          {/* Call Button */}
+          {/* Call Button - Pill Shape */}
           <button 
             onClick={() => window.location.href = `tel:${property.phoneNumber || '9131460470'}`}
-            className="flex flex-col md:flex-row items-center justify-center gap-2 bg-gray-900 text-white py-4 rounded-[2rem] shadow-lg shadow-gray-200 hover:bg-black active:scale-95 transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white h-12 rounded-full transition-all active:scale-95 shadow-md shadow-gray-300"
           >
-            <Phone size={24} fill="white" className="text-white" />
-            <span className="font-black text-lg">Call Owner</span>
+            <Phone size={20} fill="white" className="text-white" />
+            <span className="font-bold text-sm tracking-wide">Call Now</span>
           </button>
 
         </div>
