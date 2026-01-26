@@ -12,6 +12,10 @@ export async function POST(request) {
   try {
     const { token } = await request.json();
 
+    if (!token) {
+      return NextResponse.json({ success: false, message: "Token is required" }, { status: 400 });
+    }
+
     // 1. Google se token verify karo
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -19,6 +23,10 @@ export async function POST(request) {
     });
     
     const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return NextResponse.json({ success: false, message: "Invalid token payload" }, { status: 400 });
+    }
+
     const { email, name, picture } = payload;
 
     await connectToDB();
@@ -28,11 +36,13 @@ export async function POST(request) {
 
     if (!user) {
       // 3. Naya User banao (Google wala)
+      const tempMobile = "G-" + Math.floor(1000000000 + Math.random() * 9000000000).toString();
       user = await User.create({
-        username: name,
+        username: name || "User",
         email: email,
-        image: picture,
+        image: picture || "",
         password: "", // Google walo ka password nahi hota
+        mobile: tempMobile,
         provider: "google"
       });
     }
@@ -41,7 +51,7 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       user: {
-        id: user._id,
+        id: user._id.toString(),
         username: user.username,
         email: user.email,
         image: user.image
@@ -50,6 +60,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.error("Google Login Error:", error);
-    return NextResponse.json({ success: false, message: "Google Auth Failed" }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      message: error.message || "Google Auth Failed" 
+    }, { status: 500 });
   }
 }

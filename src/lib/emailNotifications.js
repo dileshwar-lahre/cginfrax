@@ -59,7 +59,8 @@ export async function notifyUsersAboutNewProperty(property) {
     const remainingSlots = 10 - emailsSentToday;
     const usersToNotify = users.slice(0, remainingSlots);
 
-    const propertyUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/properties/${property._id}`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://cginfrax.com";
+    const propertyUrl = `${baseUrl}/properties/${property._id}`;
     const categoryName = property.cat === "Room" ? "Room" : property.cat === "PG" ? "PG" : property.cat === "House" ? "House" : "Plot";
 
     // ✅ Send emails
@@ -85,7 +86,7 @@ export async function notifyUsersAboutNewProperty(property) {
 
               <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
                 CG INFRAX - Chhattisgarh's Premier Real Estate Platform<br>
-                <a href="${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}" style="color: #3b82f6;">Visit Website</a>
+                <a href="${baseUrl}" style="color: #3b82f6;">Visit Website</a>
               </p>
             </div>
           </div>

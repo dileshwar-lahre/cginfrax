@@ -14,10 +14,13 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
-    // Production mein image optimization enable rahega
-    // Agar development mein issue aaye toh temporarily unoptimized: true kar sakte ho
-    // unoptimized: process.env.NODE_ENV === 'development',
   },
   async rewrites() {
     return [

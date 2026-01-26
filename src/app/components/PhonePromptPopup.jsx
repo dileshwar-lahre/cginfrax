@@ -39,7 +39,9 @@ export default function PhonePromptPopup({ isOpen, onClose, userEmail }) {
 
       if (data.success) {
         onClose();
-        window.location.reload(); // Refresh to update session
+        if (typeof window !== 'undefined') {
+          window.location.reload(); // Refresh to update session
+        }
       } else {
         setError(data.message || "Failed to update phone number");
       }

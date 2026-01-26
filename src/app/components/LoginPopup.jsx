@@ -73,8 +73,16 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
   // ✅ GOOGLE LOGIN FIX
   const handleGoogleLogin = async () => {
     setLoading(true);
-    // callbackUrl window.location.origin use karega, jo live site par 'https://www.cginfrax.com' hoga
-    await signIn("google", { callbackUrl: window.location.origin });
+    try {
+      const baseUrl = typeof window !== 'undefined' 
+        ? window.location.origin 
+        : (process.env.NEXT_PUBLIC_BASE_URL || 'https://cginfrax.com');
+      await signIn("google", { callbackUrl: baseUrl });
+    } catch (error) {
+      console.error("Google login error:", error);
+      setError("Google login failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   if (showForgot) {

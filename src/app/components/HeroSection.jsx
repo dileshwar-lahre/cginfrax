@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Icons
 import { 
   MapPin, Home, TrendingUp, SlidersHorizontal, 
-  ArrowRight, BedDouble, Bath, Square, PlayCircle, Star, Users, CheckCircle,
+  ArrowRight, BedDouble, PlayCircle, Users, CheckCircle,
   Map as MapIcon, Phone, ChevronRight, Search, MessageCircle
 } from 'lucide-react';
 

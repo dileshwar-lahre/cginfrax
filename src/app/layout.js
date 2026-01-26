@@ -12,23 +12,60 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  title: "CG INFRAX - Buy, Rent, Sell Properties in Chhattisgarh | Rooms, Houses, Plots, PG",
+  metadataBase: new URL('https://cginfrax.com'),
+  title: {
+    default: "CG INFRAX - Buy, Rent, Sell Properties in Chhattisgarh | Rooms, Houses, Plots, PG",
+    template: "%s | CG INFRAX"
+  },
   description: "Find your perfect property in Chhattisgarh. Buy, rent, or sell houses, rooms, plots, and PG in Raipur, Bilaspur, Durg, and all CG districts. Direct connections, zero hassle.",
-  keywords: "properties in Chhattisgarh, buy house Raipur, rent room Bilaspur, plots Durg, PG Raipur, real estate CG, property for sale, property for rent",
+  keywords: ["properties in Chhattisgarh", "buy house Raipur", "rent room Bilaspur", "plots Durg", "PG Raipur", "real estate CG", "property for sale", "property for rent", "Chhattisgarh real estate", "Raipur properties", "Bilaspur properties"],
+  authors: [{ name: "CG INFRAX" }],
+  creator: "CG INFRAX",
+  publisher: "CG INFRAX",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: "CG INFRAX - Chhattisgarh's Premier Real Estate Platform",
-    description: "Buy, Rent, or Sell Properties in Chhattisgarh. Direct connections, zero hassle.",
     type: "website",
     locale: "en_IN",
+    url: "https://cginfrax.com",
+    siteName: "CG INFRAX",
+    title: "CG INFRAX - Chhattisgarh's Premier Real Estate Platform",
+    description: "Buy, Rent, or Sell Properties in Chhattisgarh. Direct connections, zero hassle.",
+    images: [
+      {
+        url: "/images/cginfrax_logo.png",
+        width: 1200,
+        height: 630,
+        alt: "CG INFRAX - Chhattisgarh Real Estate",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "CG INFRAX - Properties in Chhattisgarh",
     description: "Find your perfect property in Chhattisgarh",
+    images: ["/images/cginfrax_logo.png"],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: "https://cginfrax.com",
+  },
+  verification: {
+    // Add Google Search Console verification if you have it
+    // google: "your-google-verification-code",
   },
 };
 

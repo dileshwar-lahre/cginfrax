@@ -64,6 +64,8 @@ export default function Navbar() {
 
   // Scroll Handler
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
       const scrollPosition = window.scrollY + 100; 

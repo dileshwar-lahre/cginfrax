@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://cginfrax.com/sitemap.xml
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /profile
+Disallow: /upload
+Disallow: /edit-property/
+
+# Allow important pages
+Allow: /
+Allow: /house
+Allow: /rooms
+Allow: /pg
+Allow: /plots
+Allow: /properties
+Allow: /listing
+Allow: /construction
+Allow: /Interior
+Allow: /contact
+Allow: /support
+Allow: /privacy
+Allow: /terms

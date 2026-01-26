@@ -10,16 +10,19 @@ const Topbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      console.log("ScrollY:", window.scrollY); // 👈 check karne ke liye
-      if (window.scrollY > 300) {   // 300 rakho pehle test ke liye
-        setShowSearch(true);
-      } else {
-        setShowSearch(false);
+      if (typeof window !== 'undefined') {
+        if (window.scrollY > 300) {
+          setShowSearch(true);
+        } else {
+          setShowSearch(false);
+        }
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    if (typeof window !== 'undefined') {
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
   return (

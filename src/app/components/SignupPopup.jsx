@@ -225,7 +225,16 @@ export default function SignupPopup({ isOpen, onClose, onSwitchToLogin }) {
   // ✅ GOOGLE SIGNUP FIX
   const handleGoogleSignup = async () => {
     setLoading(true);
-    await signIn("google", { callbackUrl: window.location.origin });
+    try {
+      const baseUrl = typeof window !== 'undefined' 
+        ? window.location.origin 
+        : (process.env.NEXT_PUBLIC_BASE_URL || 'https://cginfrax.com');
+      await signIn("google", { callbackUrl: baseUrl });
+    } catch (error) {
+      console.error("Google signup error:", error);
+      alert("Google signup failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
