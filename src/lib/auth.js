@@ -9,13 +9,6 @@ export const authOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
     }),
     CredentialsProvider({
       id: "credentials",
@@ -134,30 +127,6 @@ export const authOptions = {
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      // ✅ Fix redirect URI mismatch - ensure correct redirect URL
-      try {
-        const nextAuthUrl = process.env.NEXTAUTH_URL || baseUrl;
-        const urlObj = new URL(url, baseUrl);
-        const baseUrlObj = new URL(nextAuthUrl);
-        
-        // If redirecting to same origin, allow it
-        if (urlObj.origin === baseUrlObj.origin) {
-          return url;
-        }
-        
-        // If it's a relative URL, make it absolute
-        if (url.startsWith('/')) {
-          return `${baseUrlObj.origin}${url}`;
-        }
-        
-        // Otherwise redirect to base URL
-        return baseUrlObj.origin;
-      } catch (error) {
-        console.error("Redirect callback error:", error);
-        return baseUrl;
-      }
-    },
   },
   session: { 
     strategy: "jwt",
@@ -169,15 +138,4 @@ export const authOptions = {
     error: "/",
   },
   debug: process.env.NODE_ENV === "development",
-  events: {
-    async signIn({ user, account }) {
-      // Log successful sign-ins for debugging
-      if (process.env.NODE_ENV === "development") {
-        console.log("User signed in:", user.email, account?.provider);
-      }
-    },
-    async signOut() {
-      // Handle sign out if needed
-    },
-  },
 };
