@@ -21,109 +21,64 @@ export const authOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
-        
+        await connectToDB();
         try {
-          await connectToDB();
           const user = await User.findOne({ email: credentials.email.toLowerCase().trim() });
-          if (!user) {
-            throw new Error("Invalid email or password");
-          }
+          if (!user) throw new Error("Invalid email or password");
           
-          // ✅ Check if user has password (Google users might not have)
-          if (!user.password) {
-            throw new Error("Please sign in with Google or reset your password");
-          }
+          const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+          if (!isPasswordCorrect) throw new Error("Invalid email or password");
           
-          const isPasswordCorrect = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
-          
-          if (!isPasswordCorrect) {
-            throw new Error("Invalid email or password");
-          }
-          
-          return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.username,
-            mobile: user.mobile,
-          };
+          return user;
         } catch (err) {
-          console.error("Auth Error:", err);
-          // Don't expose internal errors
-          if (err.message.includes("Invalid") || err.message.includes("required")) {
-            throw err;
-          }
-          throw new Error("Authentication failed. Please try again.");
+          throw new Error(err.message || "Authentication failed");
         }
       },
     }),
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === "google" && user?.email) {
+      if (account.provider === "google") {
+        await connectToDB();
         try {
-          await connectToDB();
           const existingUser = await User.findOne({ email: user.email });
           if (!existingUser) {
-            // ✅ Temporary mobile number (user will be prompted to update)
             const tempMobile = "G-" + Math.floor(1000000000 + Math.random() * 9000000000).toString();
             const dummyPassword = await bcrypt.hash("google-auth-secret", 10);
             const newUser = new User({
-              username: user.name || "User",
+              username: user.name,
               email: user.email,
-              mobile: tempMobile, // User will be prompted to update this
+              mobile: tempMobile,
               password: dummyPassword,
             });
             await newUser.save();
           }
           return true;
         } catch (err) {
-          console.error("Google Login Error:", err);
           return false;
         }
       }
       return true;
     },
-    async jwt({ token, user, account }) {
-      // ✅ Initial sign in - store user data in token
+    
+    // ⬇️ YE PRODUCTION KE LIYE ZAROORI HAI ⬇️
+    async jwt({ token, user }) {
       if (user) {
-        try {
-          await connectToDB();
-          const dbUser = await User.findOne({ email: user.email });
-          if (dbUser) {
-            token.id = dbUser._id.toString();
-            token.mobile = dbUser.mobile || user.mobile;
-            token.username = dbUser.username || user.name;
-            token.email = dbUser.email;
-          } else {
-            // Fallback to user object if DB query fails
-            token.id = user.id;
-            token.mobile = user.mobile;
-            token.username = user.name;
-            token.email = user.email;
-          }
-        } catch (error) {
-          console.error("JWT callback error:", error);
-          // Fallback to user object if DB query fails
-          if (user) {
-            token.id = user.id;
-            token.mobile = user.mobile;
-            token.username = user.name;
-            token.email = user.email;
-          }
-        }
+        token.id = user.id || user._id;
+        token.email = user.email;
       }
       return token;
     },
+
     async session({ session, token }) {
-      // ✅ Use token data instead of DB query (prevents 500 errors)
-      if (token && session?.user) {
-        session.user.id = token.id || null;
-        session.user.mobile = token.mobile || null;
-        session.user.username = token.username || token.name || null;
-        session.user.email = token.email || session.user.email;
+      if (token) {
+        await connectToDB();
+        const sessionUser = await User.findOne({ email: token.email });
+        if (sessionUser) {
+          session.user.id = sessionUser._id.toString();
+          session.user.mobile = sessionUser.mobile;
+          session.user.username = sessionUser.username; // Add this too
+        }
       }
       return session;
     },
@@ -135,7 +90,5 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/", 
-    error: "/",
-  },
-  debug: process.env.NODE_ENV === "development",
+  }
 };
