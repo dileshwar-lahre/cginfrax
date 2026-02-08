@@ -109,18 +109,17 @@ export const authOptions = {
   useSecureCookies: process.env.NODE_ENV === "production",
 
   cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production",
-        // Hostinger domain specification (Optional: add if still failing)
-        // domain: process.env.NODE_ENV === "production" ? '.cginfrax.com' : 'localhost'
-      }
+  sessionToken: {
+    name: `__Secure-next-auth.session-token`,
+    options: {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      secure: true,
+      domain: '.cginfrax.com' // ✅ Isse www aur bina-www dono cover ho jayenge
     }
-  },
+  }
+},
 
   pages: {
     signIn: "/login",
