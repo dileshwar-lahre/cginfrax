@@ -189,7 +189,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <p className="font-bold text-gray-900 text-sm">Visit our Office</p>
-                <p className="text-xs text-gray-500">Shankar Nagar, Raipur</p>
+                <p className="text-xs text-gray-500">bilaspur Chhattisgarh</p>
               </div>
            </div>
         </div>
