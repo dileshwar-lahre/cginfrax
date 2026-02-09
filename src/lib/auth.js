@@ -37,6 +37,7 @@ export const authOptions = {
           });
           if (!user) throw new Error("User not found");
           
+          // Google users ka password hashed secret hota hai, credentials wale ka real
           const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
           if (!isPasswordCorrect) throw new Error("Invalid credentials");
           
@@ -55,13 +56,14 @@ export const authOptions = {
           const existingUser = await User.findOne({ email: user.email });
           if (!existingUser) {
             const tempMobile = "G-" + Math.floor(1000000000 + Math.random() * 9000000000).toString();
-            // ✅ Security: Dummy password ke liye secret use kiya hai
-            const dummyPassword = await bcrypt.hash(process.env.NEXTAUTH_SECRET, 10);
+            // Security: Use NEXTAUTH_SECRET to hash the dummy password
+            const dummyPassword = await bcrypt.hash(process.env.NEXTAUTH_SECRET || "fallback_secret", 10);
             await User.create({
               username: user.name || user.email.split('@')[0],
               email: user.email,
               mobile: tempMobile,
               password: dummyPassword,
+              image: user.image
             });
           }
           return true;
@@ -98,33 +100,33 @@ export const authOptions = {
     },
   },
 
-  // 🔥 LIVE STABILITY SETTINGS
   session: { 
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, 
   },
   secret: process.env.NEXTAUTH_SECRET,
   
-  // ✅ Live Fix: WWW vs Non-WWW cookie mismatch handle karne ke liye
   useSecureCookies: process.env.NODE_ENV === "production",
 
   cookies: {
-  sessionToken: {
-    name: `__Secure-next-auth.session-token`,
-    options: {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: true,
-      domain: '.cginfrax.com' // ✅ Isse www aur bina-www dono cover ho jayenge
+    sessionToken: {
+      // ✅ FIX: Local par 'next-auth' aur Production par '__Secure-' prefix use hoga
+      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        // ✅ Live domain handling
+        domain: process.env.NODE_ENV === "production" ? '.cginfrax.com' : 'localhost'
+      }
     }
-  }
-},
+  },
 
   pages: {
     signIn: "/login",
     error: "/login",
   },
   
-  debug: process.env.NODE_ENV === "development", // Development mein logs dikhayega
+  debug: false, // Production mein false hi rakhna
 };

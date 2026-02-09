@@ -10,7 +10,6 @@ import ForgotPasswordPopup from "./ForgotPasswordPopup";
 export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
   const router = useRouter();
   
-  // --- STATES ---
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,7 +20,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     password: "",
   });
 
-  // Reset form when closed
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => {
@@ -38,7 +36,6 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     setFormData({ ...formData, [name]: value });
   };
 
-  // --- LOGIN API CALL ---
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,14 +67,19 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     }
   };
 
-  // ✅ GOOGLE LOGIN FIX
+  // ✅ FIXED GOOGLE LOGIN FOR PRODUCTION
   const handleGoogleLogin = async () => {
     setLoading(true);
+    setError("");
     try {
-      const baseUrl = typeof window !== 'undefined' 
-        ? window.location.origin 
-        : (process.env.NEXT_PUBLIC_BASE_URL || 'https://cginfrax.com');
-      await signIn("google", { callbackUrl: baseUrl });
+      // Hostinger/Live site par hamesha WWW wala URL match hona chahiye callback ke liye
+      const productionUrl = "https://www.cginfrax.com";
+      const callbackUrl = process.env.NODE_ENV === "production" ? productionUrl : window.location.origin;
+
+      await signIn("google", { 
+        callbackUrl: callbackUrl,
+        redirect: true 
+      });
     } catch (error) {
       console.error("Google login error:", error);
       setError("Google login failed. Please try again.");
