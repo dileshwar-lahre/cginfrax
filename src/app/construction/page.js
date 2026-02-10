@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react'; // ✅ Suspense import kiya
 import { motion } from 'framer-motion';
 import { 
   Hammer, Ruler, PaintBucket, HardHat, 
   Phone, MessageCircle, CheckCircle2, ArrowRight, 
-  BrickWall, Home
+  BrickWall
 } from 'lucide-react';
 
 // --- DATA ---
@@ -49,13 +49,13 @@ const FEATURES = [
   "Legal Agreement before Work Starts"
 ];
 
-export default function ConstructionPage() {
+// ✅ Pure logic ko ek alag component mein daal diya
+function ConstructionContent() {
   return (
     <main className="min-h-screen bg-slate-50 font-sans pb-24">
       
       {/* --- HERO SECTION --- */}
       <section className="relative h-[500px] md:h-[600px] flex items-center justify-center overflow-hidden">
-        {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2072&auto=format&fit=crop" 
@@ -141,7 +141,6 @@ export default function ConstructionPage() {
       <section className="bg-slate-900 text-white py-20 px-6 rounded-t-[3rem]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
           
-          {/* Left Content */}
           <div className="w-full md:w-1/2">
             <span className="text-orange-400 font-bold tracking-widest text-sm uppercase mb-2 block">Why CGINFRAX?</span>
             <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
@@ -161,7 +160,6 @@ export default function ConstructionPage() {
             </div>
           </div>
 
-          {/* Right Image/Card */}
           <div className="w-full md:w-1/2">
             <div className="relative bg-gradient-to-br from-blue-600 to-indigo-700 p-1 rounded-[2.5rem] shadow-2xl">
               <img 
@@ -169,18 +167,16 @@ export default function ConstructionPage() {
                 alt="Engineer Working" 
                 className="rounded-[2.4rem] w-full object-cover"
               />
-              {/* Experience Badge */}
               <div className="absolute -bottom-6 -left-6 bg-white text-slate-900 p-6 rounded-3xl shadow-xl hidden md:block">
                 <p className="text-4xl font-black text-blue-600">50+</p>
                 <p className="text-sm font-bold text-gray-500">Projects Completed</p>
               </div>
             </div>
           </div>
-
         </div>
       </section>
 
-      {/* --- FIXED FLOATING ACTION BAR (Mobile Only) --- */}
+      {/* --- MOBILE ACTION BAR --- */}
       <div className="fixed bottom-6 left-6 right-6 md:hidden z-50 flex gap-3">
         <button 
           onClick={() => window.open('tel:919131460470')}
@@ -195,7 +191,15 @@ export default function ConstructionPage() {
           <MessageCircle size={18} /> WhatsApp
         </button>
       </div>
-
     </main>
+  );
+}
+
+// ✅ Main Export ko Suspense mein lapet diya (This fixes the build error)
+export default function ConstructionPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ConstructionContent />
+    </Suspense>
   );
 }

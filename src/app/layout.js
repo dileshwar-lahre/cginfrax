@@ -4,6 +4,7 @@ import Topbar from "./components/Topbar";
 import PhoneSearchBar from "./components/Phonesearchbar";
 import Footer from "./components/Footer";
 import AuthProvider from "./components/AuthProvider";
+import { Suspense } from "react"; // ✅ Suspense import kiya
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -12,7 +13,7 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://cginfrax.com'),
+  metadataBase: new URL('https://www.cginfrax.com'), // ✅ WWW added for consistency
   title: {
     default: "CG INFRAX - Buy, Rent, Sell Properties in Chhattisgarh | Rooms, Houses, Plots, PG",
     template: "%s | CG INFRAX"
@@ -30,7 +31,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://cginfrax.com",
+    url: "https://www.cginfrax.com",
     siteName: "CG INFRAX",
     title: "CG INFRAX - Chhattisgarh's Premier Real Estate Platform",
     description: "Buy, Rent, or Sell Properties in Chhattisgarh. Direct connections, zero hassle.",
@@ -61,11 +62,7 @@ export const metadata = {
     },
   },
   alternates: {
-    canonical: "https://cginfrax.com",
-  },
-  verification: {
-    // Add Google Search Console verification if you have it
-    // google: "your-google-verification-code",
+    canonical: "https://www.cginfrax.com",
   },
 };
 
@@ -73,12 +70,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${outfit.variable} font-sans antialiased`}>
-        <AuthProvider>
-          <Topbar />
-          <PhoneSearchBar />
-          {children}
-          <Footer />
-        </AuthProvider>
+        {/* ✅ AuthProvider ke bahar Suspense lagane se build error nahi aayega */}
+        <Suspense fallback={null}>
+          <AuthProvider>
+            <Topbar />
+            <PhoneSearchBar />
+            <main>{children}</main>
+            <Footer />
+          </AuthProvider>
+        </Suspense>
       </body>
     </html>
   );
