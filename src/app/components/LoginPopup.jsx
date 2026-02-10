@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { X, Eye, EyeOff, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // ✅ Added useSearchParams
 import ForgotPasswordPopup from "./ForgotPasswordPopup"; 
 
 export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
   const router = useRouter();
+  const searchParams = useSearchParams(); // ✅ URL errors pakadne ke liye
   
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,6 +20,16 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     email: "",
     password: "",
   });
+
+  // ✅ URL mein agar auth error hai toh yahan dikhao
+  useEffect(() => {
+    const authError = searchParams.get("error");
+    if (authError === "OAuthCallback") {
+      setError("Google login failed. Please check your Google Console settings.");
+    } else if (authError) {
+      setError("An error occurred during authentication.");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -72,13 +83,13 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
     setLoading(true);
     setError("");
     try {
-      // Hostinger/Live site par hamesha WWW wala URL match hona chahiye callback ke liye
+      // Hostinger par hamesha WWW wala URL match hona chahiye
       const productionUrl = "https://www.cginfrax.com";
       const callbackUrl = process.env.NODE_ENV === "production" ? productionUrl : window.location.origin;
 
       await signIn("google", { 
         callbackUrl: callbackUrl,
-        redirect: true 
+        redirect: true // ✅ Live site par ise true rakhna better hai
       });
     } catch (error) {
       console.error("Google login error:", error);
@@ -121,7 +132,7 @@ export default function LoginPopup({ isOpen, onClose, onSwitchToSignup }) {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 text-red-500 text-sm py-2 px-3 rounded-lg mb-4 text-center border border-red-100">
+          <div className="bg-red-50 text-red-500 text-sm py-2 px-3 rounded-lg mb-4 text-center border border-red-100 font-medium">
             {error}
           </div>
         )}

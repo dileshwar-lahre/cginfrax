@@ -6,62 +6,57 @@ import bcrypt from "bcryptjs";
 
 export const authOptions = {
   trustHost: true, 
-
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
     }),
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing email or password");
-        }
+        if (!credentials?.email || !credentials?.password) return null;
+        
         await connectToDB();
-        try {
-          const user = await User.findOne({ 
-            email: credentials.email.toLowerCase().trim() 
-          });
-          if (!user) throw new Error("User not found");
-          
-          // Google users ka password hashed secret hota hai, credentials wale ka real
-          const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
-          if (!isPasswordCorrect) throw new Error("Invalid credentials");
-          
-          return user;
-        } catch (err) {
-          throw new Error("Auth failed");
-        }
+        const user = await User.findOne({ 
+          email: credentials.email.toLowerCase().trim() 
+        });
+        
+        if (!user || !user.password) return null;
+        
+        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+        if (!isPasswordCorrect) return null;
+        
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.username,
+        };
       },
     }),
   ],
   callbacks: {
+    // ✅ REDIRECT CALLBACK: WWW aur Non-WWW ka lafada khatam
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
+
     async signIn({ user, account }) {
       if (account.provider === "google") {
         await connectToDB();
         try {
           const existingUser = await User.findOne({ email: user.email });
           if (!existingUser) {
-            const tempMobile = "G-" + Math.floor(1000000000 + Math.random() * 9000000000).toString();
-            // Security: Use NEXTAUTH_SECRET to hash the dummy password
-            const dummyPassword = await bcrypt.hash(process.env.NEXTAUTH_SECRET || "fallback_secret", 10);
+            // ✅ UNIQUE MOBILE: Timestamp use kar rahe hain taaki clash na ho
+            const tempMobile = "G-" + Date.now(); 
+            const dummyPassword = await bcrypt.hash(process.env.NEXTAUTH_SECRET, 10);
+            
             await User.create({
               username: user.name || user.email.split('@')[0],
               email: user.email,
-              mobile: tempMobile,
+              mobile: tempMobile, 
               password: dummyPassword,
               image: user.image
             });
@@ -77,8 +72,10 @@ export const authOptions = {
     
     async jwt({ token, user, trigger, session }) {
       if (user) {
+        token.id = user.id;
         token.email = user.email;
       }
+      // Frontend se session update karne ke liye (Mobile number update ke baad)
       if (trigger === "update" && session) {
         return { ...token, ...session.user };
       }
@@ -94,31 +91,24 @@ export const authOptions = {
           session.user.mobile = sessionUser.mobile;
           session.user.username = sessionUser.username;
           session.user.email = sessionUser.email;
+          session.user.image = sessionUser.image;
         }
       }
       return session;
     },
   },
 
-  session: { 
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, 
-  },
+  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   secret: process.env.NEXTAUTH_SECRET,
-  
-  useSecureCookies: process.env.NODE_ENV === "production",
 
   cookies: {
     sessionToken: {
-      // ✅ FIX: Local par 'next-auth' aur Production par '__Secure-' prefix use hoga
       name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === "production",
-        // ✅ Live domain handling
-        domain: process.env.NODE_ENV === "production" ? '.cginfrax.com' : 'localhost'
       }
     }
   },
@@ -127,6 +117,4 @@ export const authOptions = {
     signIn: "/login",
     error: "/login",
   },
-  
-  debug: false, // Production mein false hi rakhna
 };
