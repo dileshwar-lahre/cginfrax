@@ -1,0 +1,278 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [
+      {
+        "source": "/rooms-in-bilaspur",
+        "destination": "/listing?category=Room&district=Bilaspur",
+        "regex": "^/rooms-in-bilaspur(?:/)?$"
+      },
+      {
+        "source": "/rooms-in-raipur",
+        "destination": "/listing?category=Room&district=Raipur",
+        "regex": "^/rooms-in-raipur(?:/)?$"
+      },
+      {
+        "source": "/pg-in-bilaspur",
+        "destination": "/listing?category=PG&district=Bilaspur",
+        "regex": "^/pg-in-bilaspur(?:/)?$"
+      },
+      {
+        "source": "/pg-in-raipur",
+        "destination": "/listing?category=PG&district=Raipur",
+        "regex": "^/pg-in-raipur(?:/)?$"
+      },
+      {
+        "source": "/houses-in-bilaspur",
+        "destination": "/listing?category=House&district=Bilaspur",
+        "regex": "^/houses-in-bilaspur(?:/)?$"
+      },
+      {
+        "source": "/houses-in-raipur",
+        "destination": "/listing?category=House&district=Raipur",
+        "regex": "^/houses-in-raipur(?:/)?$"
+      },
+      {
+        "source": "/plots-in-bilaspur",
+        "destination": "/listing?category=Plot&district=Bilaspur",
+        "regex": "^/plots-in-bilaspur(?:/)?$"
+      },
+      {
+        "source": "/plots-in-raipur",
+        "destination": "/listing?category=Plot&district=Raipur",
+        "regex": "^/plots-in-raipur(?:/)?$"
+      }
+    ],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/auth/[...nextauth]",
+      "regex": "^/api/auth/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPnextauth": "nxtPnextauth"
+      },
+      "namedRegex": "^/api/auth/(?<nxtPnextauth>.+?)(?:/)?$"
+    },
+    {
+      "page": "/api/properties/[id]",
+      "regex": "^/api/properties/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/properties/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/properties/[id]/like",
+      "regex": "^/api/properties/([^/]+?)/like(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/properties/(?<nxtPid>[^/]+?)/like(?:/)?$"
+    },
+    {
+      "page": "/edit-property/[id]",
+      "regex": "^/edit\\-property/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/edit\\-property/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/properties/edit/[id]",
+      "regex": "^/properties/edit/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/properties/edit/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/properties/[id]",
+      "regex": "^/properties/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/properties/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api/properties",
+      "regex": "^/api/properties(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/properties(?:/)?$"
+    },
+    {
+      "page": "/api/transactions/create",
+      "regex": "^/api/transactions/create(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/transactions/create(?:/)?$"
+    },
+    {
+      "page": "/api/upload",
+      "regex": "^/api/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/upload(?:/)?$"
+    },
+    {
+      "page": "/construction",
+      "regex": "^/construction(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/construction(?:/)?$"
+    },
+    {
+      "page": "/contact",
+      "regex": "^/contact(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contact(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/house",
+      "regex": "^/house(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/house(?:/)?$"
+    },
+    {
+      "page": "/Interior",
+      "regex": "^/Interior(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Interior(?:/)?$"
+    },
+    {
+      "page": "/interior_design",
+      "regex": "^/interior_design(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/interior_design(?:/)?$"
+    },
+    {
+      "page": "/listing",
+      "regex": "^/listing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/listing(?:/)?$"
+    },
+    {
+      "page": "/otherservices",
+      "regex": "^/otherservices(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/otherservices(?:/)?$"
+    },
+    {
+      "page": "/pg",
+      "regex": "^/pg(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pg(?:/)?$"
+    },
+    {
+      "page": "/plots",
+      "regex": "^/plots(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/plots(?:/)?$"
+    },
+    {
+      "page": "/privacy",
+      "regex": "^/privacy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy(?:/)?$"
+    },
+    {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
+      "page": "/properties",
+      "regex": "^/properties(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/properties(?:/)?$"
+    },
+    {
+      "page": "/rent",
+      "regex": "^/rent(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/rent(?:/)?$"
+    },
+    {
+      "page": "/room",
+      "regex": "^/room(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/room(?:/)?$"
+    },
+    {
+      "page": "/support",
+      "regex": "^/support(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/support(?:/)?$"
+    },
+    {
+      "page": "/terms",
+      "regex": "^/terms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms(?:/)?$"
+    },
+    {
+      "page": "/upload",
+      "regex": "^/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/upload(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

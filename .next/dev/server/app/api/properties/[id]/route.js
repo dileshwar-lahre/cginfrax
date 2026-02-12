@@ -1,0 +1,10 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/properties/[id]/route.js")
+R.c("server/chunks/1cba1_next_03f0ec77._.js")
+R.c("server/chunks/1cba1_next-auth_682111fe._.js")
+R.c("server/chunks/1cba1_openid-client_17d081f3._.js")
+R.c("server/chunks/1cba1_jose_dist_node_cjs_e263e61e._.js")
+R.c("server/chunks/[root-of-the-server]__6f5d622e._.js")
+R.c("server/chunks/[root-of-the-server]__7b4080d6._.js")
+R.c("server/chunks/cginfrax__next-internal_server_app_api_properties_[id]_route_actions_7e95f207.js")
+R.m("[project]/cginfrax/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/cginfrax/src/app/api/properties/[id]/route.js [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/cginfrax/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/cginfrax/src/app/api/properties/[id]/route.js [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports
