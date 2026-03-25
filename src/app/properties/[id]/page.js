@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { 
   MapPin, Bed, Bath, Move, Phone, ArrowLeft, Share2, 
-  Heart, Eye, Pencil, Trash2, MessageCircle 
+  Heart, Eye, Pencil, Trash2, MessageCircle, ChevronRight
 } from "lucide-react"; 
 
 export default function PropertyDetails() {
@@ -13,195 +13,186 @@ export default function PropertyDetails() {
   const { data: session } = useSession();
   const [property, setProperty] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [similarProperties, setSimilarProperties] = useState([]);
 
   useEffect(() => {
     if (id) {
       fetch(`/api/properties/${id}`)
         .then((res) => res.json())
-        .then((data) => setProperty(data));
+        .then((data) => setProperty(data))
+        .catch(err => console.error("Main fetch error:", err));
     }
   }, [id]);
 
-  // --- DELETE FUNCTION ---
+  useEffect(() => {
+    const fetchSimilar = async () => {
+      if (!property || !property.district) return;
+      try {
+        const res = await fetch(
+          `/api/properties/similar?district=${encodeURIComponent(property.district)}&beds=${property.details?.beds || 0}&currentId=${id}`
+        );
+        const data = await res.json();
+        setSimilarProperties(Array.isArray(data) ? data : []);
+      } catch (err) { setSimilarProperties([]); }
+    };
+    fetchSimilar();
+  }, [property, id]);
+
   const handleDelete = async () => {
-    if (!confirm("Bhai, sach mein delete karna hai?")) return;
+    if (!confirm("Bhai, delete karna hai?")) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/properties/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        alert("Property Delete Ho Gayi! ✅");
-        router.push("/properties");
-      } else {
-        const data = await res.json();
-        alert(data.error);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeleting(false);
-    }
+      if (res.ok) { router.push("/properties"); }
+    } catch (err) { console.error(err); } finally { setDeleting(false); }
   };
 
   const handleLike = async () => {
-    if (!session) return alert("Pehle Login karo bhai!");
+    if (!session) return alert("Pehle Login karo!");
     try {
       const res = await fetch(`/api/properties/${id}/like`, { method: "POST" });
       const data = await res.json();
-      if (res.ok) {
-        setProperty({ ...property, likes: data.likes });
-      }
-    } catch (err) {
-      console.error("Like error:", err);
-    }
+      if (res.ok) setProperty({ ...property, likes: data.likes });
+    } catch (err) { console.error("Like error:", err); }
   };
 
   const handleShare = async () => {
     try {
       await navigator.share({ title: property.title, url: window.location.href });
-    } catch (err) {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Link copied!");
-    }
+    } catch (err) { alert("Link copied!"); }
   };
 
-  // 🔥 WHATSAPP FUNCTION
   const handleWhatsApp = () => {
     const phone = property.phoneNumber || '9131460470'; 
-    const message = `Hi, I saw your property "${property.title}" on the app. Is it still available?`;
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const message = `Hi, I'm interested in "${property.title}".\nLink: ${window.location.href}`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  if (!property) return <div className="h-screen flex items-center justify-center font-black text-xl">LOADING...</div>;
+  if (!property) return <div className="h-screen flex items-center justify-center font-black text-blue-600 animate-pulse">LOADING...</div>;
 
   const isLiked = property.likes?.includes(session?.user?.email);
   const isOwner = session?.user?.email === property.userEmail;
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] pb-32 relative">
+    <div className="min-h-screen bg-[#FDFDFD] pb-10">
       
-      {/* Top Navigation */}
-      <div className="flex justify-between items-center p-6 sticky top-0 z-40 bg-[#FDFDFD]/80 backdrop-blur-md">
-        <button onClick={() => router.back()} className="p-3 bg-white shadow-lg shadow-gray-200/50 rounded-full border border-gray-100 hover:scale-105 transition-transform">
-          <ArrowLeft size={22} className="text-gray-900" />
-        </button>
-        
-        <div className="flex gap-3">
+      {/* Navigation */}
+      <div className="flex justify-between items-center p-5 sticky top-0 z-50 bg-white/80 backdrop-blur-md">
+        <button onClick={() => router.back()} className="p-3 bg-white shadow-sm rounded-2xl border border-gray-100"><ArrowLeft size={20}/></button>
+        <div className="flex gap-2">
           {isOwner && (
             <>
-              <button 
-                onClick={() => router.push(`/properties/edit/${id}`)}
-                className="p-3 bg-blue-50 text-blue-600 shadow-md rounded-full border border-blue-100"
-              >
-                <Pencil size={22} />
-              </button>
-              <button 
-                onClick={handleDelete}
-                disabled={deleting}
-                className="p-3 bg-red-50 text-red-600 shadow-md rounded-full border border-red-100"
-              >
-                <Trash2 size={22} />
-              </button>
+              <button onClick={() => router.push(`/properties/edit/${id}`)} className="p-3 bg-blue-50 text-blue-600 rounded-2xl"><Pencil size={20}/></button>
+              <button onClick={handleDelete} className="p-3 bg-red-50 text-red-600 rounded-2xl"><Trash2 size={20}/></button>
             </>
           )}
-
-          <button onClick={handleShare} className="p-3 bg-white shadow-lg shadow-gray-200/50 rounded-full border border-gray-100 active:scale-95 transition-transform">
-            <Share2 size={22} className="text-blue-600" />
-          </button>
-          <button onClick={handleLike} className="p-3 bg-white shadow-lg shadow-gray-200/50 rounded-full border border-gray-100 active:scale-95 transition-transform">
-            <Heart size={22} className={isLiked ? "fill-red-500 text-red-500" : "text-gray-400"} />
+          <button onClick={handleShare} className="p-3 bg-white border border-gray-100 rounded-2xl"><Share2 size={20}/></button>
+          <button onClick={handleLike} className="p-3 bg-white border border-gray-100 rounded-2xl">
+            <Heart size={20} className={isLiked ? "fill-red-500 text-red-500" : "text-gray-400"} />
           </button>
         </div>
       </div>
 
-      {/* 🖼️ IMAGES SLIDER */}
-      <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 px-6 no-scrollbar pb-4">
-        {property.images?.map((img, index) => (
-          <div key={index} className="flex-shrink-0 w-[85vw] md:w-[800px] aspect-[4/3] md:aspect-video snap-center">
-            <img src={img} className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl shadow-gray-200 border-4 border-white" alt="property" />
+      {/* Images */}
+      <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 px-5">
+        {property.images?.map((img, i) => (
+          <div key={i} className="flex-shrink-0 w-[85vw] md:w-[700px] aspect-[4/3] snap-center">
+            <img src={img} className="w-full h-full object-cover rounded-[2.5rem] shadow-lg border-2 border-white" alt="prop"/>
           </div>
         ))}
       </div>
 
-      <div className="max-w-4xl mx-auto px-8 mt-6 space-y-8">
+      <div className="max-w-4xl mx-auto px-6 mt-8 space-y-8">
         
-        {/* 🔥 STATS & PRICE ROW */}
-        <div className="flex flex-wrap justify-between items-end gap-4">
-          <div className="flex gap-3">
-            <div className="flex items-center gap-2 bg-gray-900 px-4 py-2 rounded-2xl text-white font-bold text-xs shadow-lg shadow-gray-200">
-              <Eye size={14} className="text-gray-400" /> {property.views || 0} Views
-            </div>
-            <div className="flex items-center gap-2 bg-rose-50 px-4 py-2 rounded-2xl text-rose-600 font-bold text-xs border border-rose-100 shadow-sm">
-              <Heart size={14} fill="currentColor" /> {property.likes?.length || 0} Likes
-            </div>
-          </div>
-
-          {/* Price Tag */}
-          <div className="bg-blue-600 px-6 py-3 rounded-3xl text-white shadow-xl shadow-blue-200/50">
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-[-2px]">Asking Price</p>
-            <p className="text-2xl font-[1000]">₹{property.price?.toLocaleString('en-IN')}</p>
-          </div>
-        </div>
-
-        {/* Title & Address */}
+        {/* Title & Stats */}
         <div className="space-y-2">
-          <h1 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">{property.title}</h1>
-          <p className="flex items-center gap-2 text-gray-500 font-bold text-base md:text-lg">
-            <MapPin size={20} className="text-red-500 shrink-0"/> {property.address}, {property.district}
-          </p>
+          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+            <span className="flex items-center gap-1"><Eye size={12}/> {property.views || 0} VIEWS</span>
+            <span className="flex items-center gap-1"><Heart size={12}/> {property.likes?.length || 0} LIKES</span>
+          </div>
+          <h1 className="text-4xl font-[1000] text-gray-900 tracking-tighter leading-tight">{property.title}</h1>
+          <p className="flex items-center gap-1 text-gray-500 font-bold"><MapPin size={18} className="text-red-500"/> {property.address}, {property.district}</p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-3 gap-3 md:gap-4">
-          <div className="bg-gray-50 p-4 md:p-6 rounded-[2rem] border border-gray-100 flex flex-col items-center hover:bg-white hover:shadow-lg transition-all">
-            <Bed className="text-gray-900 mb-2 w-6 h-6" />
-            <span className="font-black text-gray-700 text-sm md:text-base">{property.details?.beds || 0} BHK</span>
+        {/* PRICE & ACTION BUTTONS (Moved Here) */}
+        <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-100/50 space-y-5">
+          <div className="flex items-baseline gap-1">
+            <span className="text-blue-600 text-xl font-black italic">₹</span>
+            <span className="text-4xl font-[1000] text-gray-900 tracking-tighter">
+              {property.price?.toLocaleString('en-IN')}
+            </span>
           </div>
-          <div className="bg-gray-50 p-4 md:p-6 rounded-[2rem] border border-gray-100 flex flex-col items-center hover:bg-white hover:shadow-lg transition-all">
-            <Bath className="text-gray-900 mb-2 w-6 h-6" />
-            <span className="font-black text-gray-700 text-sm md:text-base">{property.details?.baths || 0} Baths</span>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={handleWhatsApp} className="flex items-center justify-center gap-2 bg-[#25D366] text-white py-4 rounded-3xl font-black uppercase text-xs tracking-widest shadow-lg shadow-green-100 active:scale-95 transition-all">
+              <MessageCircle size={18} fill="white"/> WhatsApp
+            </button>
+            <button onClick={() => window.location.href = `tel:${property.phoneNumber || '9131460470'}`} className="flex items-center justify-center gap-2 bg-gray-900 text-white py-4 rounded-3xl font-black uppercase text-xs tracking-widest shadow-lg shadow-gray-200 active:scale-95 transition-all">
+              <Phone size={18} fill="white"/> Call Now
+            </button>
           </div>
-          <div className="bg-gray-50 p-4 md:p-6 rounded-[2rem] border border-gray-100 flex flex-col items-center hover:bg-white hover:shadow-lg transition-all">
-            <Move className="text-gray-900 mb-2 w-6 h-6" />
-            <span className="font-black text-gray-700 text-sm md:text-base">{property.details?.area || 0} Sqft</span>
-          </div>
+        </div>
+
+        {/* Features */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { icon: <Bed/>, val: property.details?.beds, label: 'BHK' },
+            { icon: <Bath/>, val: property.details?.baths, label: 'Baths' },
+            { icon: <Move/>, val: property.details?.area, label: 'Sqft' }
+          ].map((item, i) => (
+            <div key={i} className="bg-gray-50 p-5 rounded-[2rem] flex flex-col items-center">
+              <div className="text-gray-900 mb-1">{item.icon}</div>
+              <span className="font-black text-gray-900 text-lg tracking-tighter">{item.val || 0} {item.label}</span>
+            </div>
+          ))}
         </div>
 
         {/* Description */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Description</h3>
-          <p className="text-gray-600 font-medium text-lg leading-relaxed bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
-            {property.desc}
-          </p>
+        <div className="space-y-3">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Description</h3>
+          <p className="text-gray-600 font-semibold text-lg leading-relaxed bg-white border border-gray-100 p-6 rounded-[2rem]">{property.desc}</p>
         </div>
+
+        {/* 🔥 SIMILAR PROPERTIES SECTION */}
+        {similarProperties.length > 0 && (
+          <div className="pt-10 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-[1000] text-gray-900 tracking-tighter uppercase">Similar Properties</h3>
+              <button onClick={() => router.push('/properties')} className="px-5 py-2 bg-gray-100 hover:bg-blue-600 hover:text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
+                All
+              </button>
+            </div>
+
+            <div className="flex overflow-x-auto gap-5 no-scrollbar pb-8 -mx-2 px-2">
+              {similarProperties.map((item) => (
+                <div 
+                  key={item._id}
+                  onClick={() => {
+                    router.push(`/properties/${item._id}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="group flex-shrink-0 w-64 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-500"
+                >
+                  <div className="relative h-40 overflow-hidden">
+                    <img src={item.images?.[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="sm"/>
+                    <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-xl shadow-md">
+                      <p className="text-blue-600 font-black text-xs">₹{item.price?.toLocaleString('en-IN')}</p>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-2">
+                    <h4 className="font-bold text-gray-900 truncate text-sm tracking-tight">{item.title}</h4>
+                    <div className="flex items-center gap-1 text-gray-400 text-[9px] font-black uppercase tracking-widest">
+                      <MapPin size={10} className="text-red-400" /> {item.district}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* 🔥 COMPACT & MODERN BOTTOM ACTION BAR */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 px-6">
-        <div className="max-w-md mx-auto flex gap-3 p-2 bg-white/90 backdrop-blur-2xl border border-white/50 rounded-full shadow-2xl shadow-gray-300/50">
-          
-          {/* WhatsApp Button - Pill Shape */}
-          <button 
-            onClick={handleWhatsApp}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white h-12 rounded-full transition-all active:scale-95 shadow-md shadow-green-200"
-          >
-            <MessageCircle size={20} fill="white" className="text-white" />
-            <span className="font-bold text-sm tracking-wide">WhatsApp</span>
-          </button>
-
-          {/* Call Button - Pill Shape */}
-          <button 
-            onClick={() => window.location.href = `tel:${property.phoneNumber || '9131460470'}`}
-            className="flex-1 flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white h-12 rounded-full transition-all active:scale-95 shadow-md shadow-gray-300"
-          >
-            <Phone size={20} fill="white" className="text-white" />
-            <span className="font-bold text-sm tracking-wide">Call Now</span>
-          </button>
-
-        </div>
-      </div>
-
-      <style jsx>{` .no-scrollbar::-webkit-scrollbar { display: none; } `}</style>
+      <style jsx>{` .no-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar::-webkit-scrollbar { display: none; } `}</style>
     </div>
   );
 }

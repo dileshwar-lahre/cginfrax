@@ -12,41 +12,45 @@ export default function PhonePromptPopup({ isOpen, onClose, userEmail }) {
     e.preventDefault();
     setError("");
     
-    // ✅ VALIDATION: Phone format (10 digits, starting with 6-9)
+    // ✅ VALIDATION: 10 digits starting with 6-9
     const phoneRegex = /^[6-9]\d{9}$/;
     const cleanPhone = phone.trim().replace(/\D/g, "");
     
-    if (!cleanPhone || cleanPhone.length !== 10) {
-      setError("Please enter a valid 10-digit phone number");
-      return;
-    }
-    
-    if (!phoneRegex.test(cleanPhone)) {
-      setError("Phone number must start with 6, 7, 8, or 9");
+    if (cleanPhone.length !== 10 || !phoneRegex.test(cleanPhone)) {
+      setError("Please enter a valid 10-digit Indian phone number");
       return;
     }
 
     setLoading(true);
     
     try {
-      const res = await fetch("/api/auth/update-phone", {
+      // 🚀 PATH FIXED: Tumhare folder structure ke hisaab se
+      const res = await fetch("/api/user/update-mobile", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: userEmail, phone: cleanPhone }),
+        // 🚀 KEYS FIXED: API 'mobile' mang rahi hai, 'phone' nahi
+        body: JSON.stringify({ 
+          email: userEmail, 
+          mobile: cleanPhone 
+        }),
       });
 
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok) {
+        // ✅ Success logic
         onClose();
+        alert("Mobile number updated successfully! ✅");
         if (typeof window !== 'undefined') {
-          window.location.reload(); // Refresh to update session
+          window.location.reload(); // Session refresh karne ke liye
         }
       } else {
-        setError(data.message || "Failed to update phone number");
+        // API se aane wala specific error dikhao
+        setError(data.error || data.message || "Failed to update number");
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      console.error("Fetch Error:", err);
+      setError("Server connection failed. Please check your internet.");
     } finally {
       setLoading(false);
     }
@@ -55,64 +59,64 @@ export default function PhonePromptPopup({ isOpen, onClose, userEmail }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[70] px-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[9999] px-4 animate-in fade-in duration-300">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative border border-gray-100">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-red-500 bg-gray-100 hover:bg-red-50 p-2 rounded-full transition-all"
+          className="absolute top-6 right-6 text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-2 rounded-full transition-all"
         >
           <X size={20} />
         </button>
 
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm">
             <Phone size={32} className="text-blue-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">
             Phone Number Required
           </h2>
-          <p className="text-sm text-gray-500">
-            Please enter your phone number to continue. This helps buyers contact you directly.
+          <p className="text-sm text-gray-500 font-medium px-4">
+            Buyers need a verified number to reach you. This is essential for CG INFRAX growth.
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-500 text-sm py-2 px-3 rounded-lg mb-4 text-center border border-red-100">
+          <div className="bg-red-50 text-red-600 text-xs font-bold py-3 px-4 rounded-xl mb-6 text-center border border-red-100 animate-bounce">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Phone Number
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="relative">
+            <label className="block text-gray-700 text-xs font-black uppercase tracking-widest mb-2 ml-1">
+              Mobile Number
             </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-                setPhone(value);
-              }}
-              placeholder="Enter 10-digit phone number"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-              required
-            />
-            <p className="text-xs text-gray-400 mt-1">Example: 9876543210</p>
+            <div className="relative">
+               <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400 border-r pr-3">+91</span>
+               <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="9XXXXXXXXX"
+                className="w-full border-2 border-gray-100 bg-gray-50 rounded-2xl pl-16 pr-4 py-4 text-gray-900 font-bold text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all tracking-widest"
+                required
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading || phone.length !== 10}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/30 transition-all active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none flex justify-center items-center gap-2"
           >
-            {loading ? <Loader2 className="animate-spin" size={20} /> : "Save Phone Number"}
+            {loading ? <Loader2 className="animate-spin" size={24} /> : "Verify & Continue"}
           </button>
         </form>
+        
+        <p className="text-center text-[10px] text-gray-400 mt-8 font-bold tracking-widest uppercase">
+           Protected by CG INFRAX Security
+        </p>
       </div>
     </div>
   );
 }
-
-
-
