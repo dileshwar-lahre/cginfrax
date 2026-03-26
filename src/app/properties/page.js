@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Heart, MapPin, Eye, MessageCircle, ShoppingBag } from "lucide-react";
+import { Heart, MapPin, Eye, MessageCircle, ShoppingBag, ArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ListingPage() {
@@ -13,10 +13,14 @@ export default function ListingPage() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await fetch("/api/properties");
+        const res = await fetch("/api/properties", {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        });
         const data = await res.json();
-        // Handle new pagination response format
-        setProperties(data.properties || data);
+        // Handle pagination or direct array
+        const finalData = Array.isArray(data) ? data : (data.properties || []);
+        setProperties(finalData);
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -34,7 +38,7 @@ export default function ListingPage() {
       const res = await fetch(`/api/properties/${propertyId}/like`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {
-        setProperties(properties.map(p => 
+        setProperties(prev => prev.map(p => 
           p._id === propertyId ? { ...p, likes: data.likes } : p
         ));
       }
@@ -49,57 +53,36 @@ export default function ListingPage() {
     window.open(url, "_blank");
   };
 
-  // ✅ BUY BUTTON HANDLER - Transaction create karta hai
   const handleBuy = async (e, propertyId, propertyTitle) => {
     e.stopPropagation();
-    
-    // ✅ Buyer ka phone number chahiye
     let buyerPhone = session?.user?.mobile || session?.user?.phone;
     
-    // Agar session me phone nahi hai, toh prompt karo
     if (!buyerPhone) {
-      const phoneInput = prompt(
-        `📱 ${propertyTitle}\n\nAapka phone number enter karein (10 digits):`
-      );
-      
-      if (!phoneInput) return; // User ne cancel kiya
-      
-      // Phone validation
+      const phoneInput = prompt(`📱 ${propertyTitle}\n\nAapka phone number enter karein (10 digits):`);
+      if (!phoneInput) return;
       const phoneRegex = /^[6-9]\d{9}$/;
-      const cleanPhone = phoneInput.trim().replace(/\D/g, ""); // Sirf digits
-      
+      const cleanPhone = phoneInput.trim().replace(/\D/g, "");
       if (!phoneRegex.test(cleanPhone)) {
-        alert("❌ Invalid phone number! 10 digits hona chahiye (6-9 se start).");
+        alert("❌ Invalid phone number!");
         return;
       }
-      
       buyerPhone = cleanPhone;
     }
 
-    // ✅ Transaction create karo
     try {
       const res = await fetch("/api/transactions/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          propertyId,
-          buyerPhone,
-        }),
+        body: JSON.stringify({ propertyId, buyerPhone }),
       });
-
       const data = await res.json();
-
       if (data.success) {
-        alert(
-          "✅ Success! Aapki inquiry save ho gayi hai. Seller ko notification bhej diya gaya hai. Aapka phone: " +
-            buyerPhone
-        );
+        alert("✅ Success! Inquiry saved. Seller notified.");
       } else {
         alert("❌ Error: " + (data.message || "Kuch galat ho gaya"));
       }
     } catch (error) {
-      console.error("Buy error:", error);
-      alert("❌ Server error. Please try again.");
+      alert("❌ Server error.");
     }
   };
 
@@ -110,91 +93,95 @@ export default function ListingPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-10 py-16 md:py-24 bg-[#FAFAFA]">
-      <div className="mb-8 md:mb-12 px-2">
-        <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter">PREMIUM PROPERTIES</h1>
-        <p className="text-gray-400 font-bold mt-2 tracking-widest uppercase text-[10px] md:text-xs">Explore Chhattisgarh&apos;s Finest Real Estate</p>
+    <div className="max-w-7xl mx-auto p-4 md:p-10 py-16 md:py-24 bg-[#FCFCFC]">
+      <div className="mb-10 md:mb-16 px-4">
+        <h1 className="text-4xl md:text-7xl font-[1000] text-gray-900 tracking-tighter italic uppercase leading-none">
+          THE <span className="text-blue-600">COLLECTION</span>
+        </h1>
+        <p className="text-gray-400 font-bold mt-4 tracking-[0.4em] uppercase text-[10px] md:text-xs">Exclusively Curated • CG INFRAX</p>
       </div>
       
-      {/* Grid: 1 col on mobile, 2 on tablet, 3 on desktop */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-14">
         {properties.map((item) => {
+          if (!item || !item._id) return null; // Build safety check
           const isLiked = item.likes?.includes(session?.user?.email);
 
           return (
             <div 
               key={item._id} 
-              onClick={() => router.push(`/properties/${item._id}`)}
-              className="group bg-white rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer border border-gray-100 relative"
+              onClick={() => router.push(`/properties/${item.slug || item._id}`)}
+              className="group relative flex flex-col cursor-pointer"
             >
-              
               {/* IMAGE SECTION */}
-              <div className="relative h-60 md:h-72 w-full overflow-hidden">
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] md:rounded-[3.5rem] bg-gray-100 shadow-2xl transition-all duration-700 group-hover:shadow-blue-100 group-hover:-translate-y-3">
                 <img
-                  src={item.images[0] || "/no-image.png"} 
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  src={item.images?.[0] || "/no-image.png"} 
+                  alt={item.title || "property"}
+                  className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                 />
-                <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-black/60 backdrop-blur-md text-white text-[9px] md:text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em]">
-                  {item.cat}
+
+                {/* Glass Price Tag */}
+                <div className="absolute top-6 left-6 bg-white/20 backdrop-blur-xl px-5 py-3 rounded-3xl border border-white/30 shadow-2xl">
+                   <p className="text-white font-[1000] text-xl md:text-2xl tracking-tighter italic drop-shadow-md">
+                     ₹{(item.price || 0).toLocaleString('en-IN')}
+                   </p>
                 </div>
-                
+
+                {/* Like Button */}
                 <button 
                   onClick={(e) => handleLike(e, item._id)}
-                  className="absolute top-4 right-4 md:top-6 md:right-6 z-10 p-2.5 md:p-3 bg-white/90 backdrop-blur-md rounded-full shadow-xl active:scale-90"
+                  className={`absolute top-6 right-6 z-10 p-3.5 rounded-full backdrop-blur-xl border border-white/30 transition-all duration-300 shadow-xl ${isLiked ? 'bg-red-500 border-red-400' : 'bg-white/10 hover:bg-white hover:text-red-500'}`}
                 >
-                  <Heart size={18} className={isLiked ? "fill-red-500 text-red-500" : "text-gray-300"} />
+                  <Heart size={20} className={isLiked ? "fill-white text-white" : "text-white group-hover:text-red-500 transition-colors"} />
                 </button>
+
+                {/* Category Badge */}
+                <div className="absolute bottom-6 left-6">
+                   <span className="bg-blue-600 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+                     {item.cat || "Verified"}
+                   </span>
+                </div>
               </div>
 
               {/* CONTENT SECTION */}
-              <div className="p-5 md:p-8 space-y-4 md:space-y-6">
-                
-                {/* Title & Stats (Horizontal Row) */}
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg md:text-2xl font-black text-gray-900 truncate tracking-tight">{item.title}</h2>
-                    <p className="text-gray-400 font-bold text-[11px] md:text-sm flex items-center gap-1 mt-0.5">
-                      <MapPin size={14} className="text-blue-500 shrink-0" /> {item.district}
+              <div className="mt-6 md:mt-8 px-2 space-y-3 md:space-y-4">
+                <div className="flex justify-between items-end">
+                  <div className="max-w-[80%]">
+                    <h2 className="text-xl md:text-2xl font-[1000] text-gray-900 tracking-tighter uppercase italic truncate leading-none">
+                      {item.title}
+                    </h2>
+                    <p className="flex items-center gap-1 text-gray-400 font-bold text-[10px] md:text-xs mt-2 uppercase tracking-tight">
+                      <MapPin size={14} className="text-red-500" /> {item.district || "Chhattisgarh"}
                     </p>
                   </div>
-
-                  {/* Views & Likes ek ke baad ek (Horizontal) */}
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
-                       <Eye size={12} className="text-gray-400" />
-                       <span className="text-[10px] font-black text-gray-600">{item.views || 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1 bg-red-50/50 px-2 py-1 rounded-full border border-red-100">
-                       <Heart size={11} className="text-red-500 fill-red-500" />
-                       <span className="text-[10px] font-black text-red-600">{item.likes?.length || 0}</span>
-                    </div>
+                  <div className="bg-gray-900 p-3 rounded-2xl text-white group-hover:bg-blue-600 transition-colors hidden md:block">
+                    <ArrowUpRight size={20} />
                   </div>
                 </div>
 
-                {/* Price & Action Row */}
-                <div className="flex justify-between items-center pt-4 md:pt-6 border-t border-gray-100">
-                  <div>
-                    <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Price</p>
-                    <p className="text-blue-600 font-black text-lg md:text-2xl tracking-tighter">₹{item.price.toLocaleString('en-IN')}</p>
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+                       <Eye size={14} className="text-gray-400" />
+                       <span className="text-[10px] font-black text-gray-600">{item.views || 0}</span>
+                    </div>
                   </div>
-
-                  <div className="flex gap-2 md:gap-3">
+                  
+                  <div className="flex gap-2">
                     <button 
                       onClick={(e) => openWhatsApp(e, item.title)}
-                      className="bg-[#25D366] text-white p-3 md:p-4 rounded-xl md:rounded-2xl hover:bg-[#128C7E] transition-all shadow-md active:scale-90"
+                      className="p-3 bg-[#25D366] text-white rounded-2xl hover:scale-110 transition-transform shadow-lg shadow-green-50"
                     >
-                      <MessageCircle size={20} fill="currentColor" />
+                      <MessageCircle size={18} fill="currentColor" />
                     </button>
                     <button 
                       onClick={(e) => handleBuy(e, item._id, item.title)}
-                      className="bg-gray-900 text-white px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-blue-600 transition-all active:scale-90"
+                      className="px-5 md:px-7 py-3 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95"
                     >
-                      <ShoppingBag size={16} /> Buy
+                      BUY
                     </button>
                   </div>
                 </div>
-
               </div>
             </div>
           );
@@ -203,7 +190,7 @@ export default function ListingPage() {
 
       {properties.length === 0 && (
         <div className="text-center py-40">
-          <p className="text-gray-300 font-black text-3xl md:text-4xl italic tracking-tighter uppercase opacity-50">No Listings Yet</p>
+          <p className="text-gray-300 font-black text-3xl italic tracking-tighter uppercase opacity-50 underline decoration-blue-500 decoration-4">No Listings Available</p>
         </div>
       )}
     </div>
