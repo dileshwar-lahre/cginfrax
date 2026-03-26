@@ -44,6 +44,7 @@ function PropertiesContent() {
         if (!res.ok) throw new Error("API Response failed");
         const data = await res.json();
         const allProps = data.properties || data;
+        
         setProperties(allProps);
         
         if (category && category !== "All") setCityWiseData(organizeByCity(allProps));
@@ -53,6 +54,7 @@ function PropertiesContent() {
     fetchProperties();
   }, [search, district, category, searchParams]);
 
+  // 🔥 LIKE: Isme hum hamesha _id hi bhejenge (Backend security ke liye)
   const handleLike = async (e, propertyId) => {
     e.stopPropagation();
     if (!session) return alert("Pehle Login karo bhai!");
@@ -71,13 +73,13 @@ function PropertiesContent() {
     </div>
   );
 
-  // 🔥 CLEAN & VISUAL CARD (No Bed/Bath)
   const PropertyCard = ({ item }) => {
     const isLiked = item.likes?.includes(session?.user?.email);
     
     return (
       <div 
-        onClick={() => router.push(`/properties/${item._id}`)} 
+        // 🔥 AB YE SLUG PE JAYEGA (SEO MAGIC)
+        onClick={() => router.push(`/properties/${item.slug || item._id}`)} 
         className="group relative bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-gray-200 hover:-translate-y-2"
       >
         {/* IMAGE SECTION */}
@@ -90,7 +92,6 @@ function PropertiesContent() {
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
           />
           
-          {/* Top Floating Badges */}
           <div className="absolute top-5 left-5 z-20">
             <span className="bg-white/30 backdrop-blur-md border border-white/20 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
               {item.cat || 'Featured'}
@@ -104,7 +105,6 @@ function PropertiesContent() {
             <Heart size={20} className={isLiked ? "fill-red-500 text-red-500" : "text-white"} />
           </button>
 
-          {/* Price - Bottom Left on Image */}
           <div className="absolute bottom-6 left-6 z-20">
              <p className="text-gray-300 text-[10px] font-bold uppercase tracking-widest mb-1">Asking Price</p>
              <p className="text-white text-3xl font-[1000] tracking-tight drop-shadow-lg">
@@ -115,12 +115,10 @@ function PropertiesContent() {
 
         {/* CONTENT SECTION */}
         <div className="p-7">
-          {/* Title */}
           <h2 className="text-2xl font-[900] text-gray-900 leading-none mb-3 truncate group-hover:text-blue-600 transition-colors">
             {item.title}
           </h2>
 
-          {/* Location */}
           <div className="flex items-start gap-2 mb-6">
             <MapPin size={18} className="text-red-500 shrink-0 mt-0.5" /> 
             <div>
@@ -129,25 +127,20 @@ function PropertiesContent() {
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-gray-50 w-full mb-5"></div>
 
-          {/* 🔥 NEW FOOTER: Views, Likes & Arrow */}
           <div className="flex justify-between items-center">
-            
-            {/* Likes & Views - Stylish Pills */}
             <div className="flex gap-3">
-               <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
-                  <Eye size={14} className="text-gray-400" />
-                  <span className="text-xs font-black text-gray-600 uppercase tracking-wide">{item.views || 0} Views</span>
-               </div>
-               <div className="flex items-center gap-2 bg-pink-50 px-4 py-2 rounded-full border border-pink-100">
-                  <Heart size={14} className="text-pink-500" fill="currentColor" />
-                  <span className="text-xs font-black text-pink-600 uppercase tracking-wide">{item.likes?.length || 0} Likes</span>
-               </div>
+                <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                   <Eye size={14} className="text-gray-400" />
+                   <span className="text-xs font-black text-gray-600 uppercase tracking-wide">{item.views || 0} Views</span>
+                </div>
+                <div className="flex items-center gap-2 bg-pink-50 px-4 py-2 rounded-full border border-pink-100">
+                   <Heart size={14} className="text-pink-500" fill="currentColor" />
+                   <span className="text-xs font-black text-pink-600 uppercase tracking-wide">{item.likes?.length || 0} Likes</span>
+                </div>
             </div>
 
-            {/* Action Button */}
             <button className="bg-black text-white p-4 rounded-full shadow-lg group-hover:bg-blue-600 group-hover:scale-110 transition-all duration-300">
                <ArrowRight size={20} />
             </button>
@@ -195,7 +188,7 @@ function PropertiesContent() {
          <div className="max-w-7xl mx-auto">
             <span className="text-blue-600 font-black text-xs tracking-[0.3em] uppercase mb-2 block">Premium Listings</span>
             <h1 className="text-5xl md:text-7xl font-[1000] text-gray-900 tracking-tighter uppercase leading-none">
-               {search || (category !== "All" ? category : "Find Your Home")}
+                {search || (category !== "All" ? category : "Find Your Home")}
             </h1>
          </div>
       </div>
