@@ -3,13 +3,12 @@ import { HeroSection } from './components/HeroSection';
 import { AboutSection } from './components/AboutSection';
 import { ServicesSection } from './components/ServicesSection';
 
-// --- 1. KNOWLEDGE PANEL & FAQ SCHEMA ---
 const knowledgePanelSchema = {
   "@context": "https://schema.org",
   "@type": "RealEstateAgent",
   "name": "CG INFRAX",
   "url": "https://cginfrax.com",
-  "logo": "https://cginfrax.com/logo.png",
+  "logo": "https://cginfrax.com/cginfrax_logo.png",
   "description": "Chhattisgarh's leading real estate & construction portal. Direct rooms, house sales, and construction services.",
   "founders": [
     { "@type": "Person", "name": "DILESHWAR LAHRE", "jobTitle": "Founder & Managing Director" },
@@ -65,38 +64,35 @@ const faqSchema = {
 export default function Home() {
   return (
     <main>
-      {/* --- SEO SCHEMAS (Google reads this) --- */}
+      {/* FIXED: Added 'key' prop to scripts and moved to the very top */}
       <script
+        key="knowledge-panel-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(knowledgePanelSchema) }}
       />
       <script
+        key="faq-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
       <Navbar />
 
-      {/* 1. Hero & Search */}
       <section id="home">
         <HeroSection />
       </section>
 
-      {/* 2. About Company */}
       <section id="about">
         <AboutSection />
       </section>
 
-      {/* 3. Services */}
       <section id="services">
         <ServicesSection />
       </section>
 
-      {/* 4. Projects Section (Future Additions yahan aayenge) */}
       <section id="projects">
-        {/* Yahan aap apna Projects component daal sakte hain */}
+        {/* Projects content here */}
       </section>
-
     </main>
   );
 }
