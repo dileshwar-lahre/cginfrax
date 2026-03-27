@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
   return (
     <main className="bg-gray-50 min-h-screen font-sans pb-24">
       
-      {/* --- HERO HEADER (Bhara hua / Dark Theme) --- */}
+      {/* --- HERO HEADER --- */}
       <section className="relative bg-slate-900 text-white pt-28 pb-20 px-6 rounded-b-[3rem] shadow-2xl overflow-hidden">
         {/* Background Decoration */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
       {/* --- CONTENT CONTAINER --- */}
       <div className="max-w-5xl mx-auto px-6 -mt-10 relative z-20">
         
-        {/* 🔥 THE PLEDGE (NO DATA SELLING) */}
+        {/* THE PLEDGE */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -55,7 +55,7 @@ export default function PrivacyPolicyPage() {
             <EyeOff size={40} className="text-red-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">The "No-Spam" Promise</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">The &quot;No-Spam&quot; Promise</h2>
             <p className="text-gray-600 leading-relaxed text-lg">
               We are a service-based company, not a data broker. 
               <span className="text-red-600 font-bold mx-1 bg-red-50 px-1 rounded">We do not sell, trade, or rent</span> 
@@ -132,9 +132,26 @@ export default function PrivacyPolicyPage() {
 
 // --- Helper Component for Cards ---
 function PolicyCard({ icon, title, children, color }) {
+  // Tailwind handles dynamic classes better with static strings
+  const borderColors = {
+    blue: "hover:border-blue-200",
+    purple: "hover:border-purple-200",
+    green: "hover:border-green-200",
+    orange: "hover:border-orange-200",
+    slate: "hover:border-slate-200"
+  };
+
+  const bgColors = {
+    blue: "bg-blue-50",
+    purple: "bg-purple-50",
+    green: "bg-green-50",
+    orange: "bg-orange-50",
+    slate: "bg-slate-50"
+  };
+
   return (
-    <div className={`bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:border-${color}-200`}>
-      <div className={`w-12 h-12 bg-${color}-50 rounded-xl flex items-center justify-center mb-4`}>
+    <div className={`bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all ${borderColors[color]}`}>
+      <div className={`w-12 h-12 ${bgColors[color]} rounded-xl flex items-center justify-center mb-4`}>
         {icon}
       </div>
       <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>

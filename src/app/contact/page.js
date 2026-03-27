@@ -11,12 +11,11 @@ const fadeInUp = {
 };
 
 export default function ContactPage() {
-  const [formStatus, setFormStatus] = useState('idle'); // idle, submitting, success
+  const [formStatus, setFormStatus] = useState('idle');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormStatus('submitting');
-    // Simulate submission
     setTimeout(() => setFormStatus('success'), 2000);
   };
 
@@ -25,7 +24,6 @@ export default function ContactPage() {
 
       {/* --- HERO SECTION --- */}
       <section className="relative w-full py-20 bg-gray-900 text-center px-6 overflow-hidden">
-        {/* Background Pattern */}
         <div className="absolute inset-0 opacity-20">
             <div className="absolute right-0 top-0 w-96 h-96 bg-orange-500 rounded-full blur-[120px] translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute left-0 bottom-0 w-96 h-96 bg-blue-600 rounded-full blur-[120px] -translate-x-1/2 translate-y-1/2"></div>
@@ -36,7 +34,8 @@ export default function ContactPage() {
             initial="hidden" animate="visible" variants={fadeInUp}
             className="text-4xl md:text-6xl font-bold text-white mb-6"
           >
-            Let's Build Your <span className="text-orange-500">Dream</span>
+            {/* FIXED: Let's badal kar Let&apos;s kiya */}
+            Let&apos;s Build Your <span className="text-orange-500">Dream</span>
           </motion.h1>
           <motion.p 
             initial="hidden" animate="visible" variants={fadeInUp}
@@ -48,55 +47,30 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* --- MAIN CONTENT: FORM & INFO --- */}
+      {/* --- MAIN CONTENT --- */}
       <section className="px-6 py-16 max-w-7xl mx-auto -mt-20 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
 
-          {/* LEFT: Contact Information Card */}
+          {/* LEFT: Info */}
           <motion.div 
              initial={{ opacity: 0, x: -30 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.2 }}
              className="flex flex-col gap-8"
           >
-            {/* Info Box */}
             <div className="bg-gray-900 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden">
                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
-               
                <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
                  Contact Info <span className="h-px flex-1 bg-gray-700"></span>
                </h3>
 
                <div className="space-y-8">
-                 <ContactItem 
-                    icon={Phone} 
-                    title="Call Us Directly" 
-                    value="+91 98765-43210" 
-                    subValue="+91 70000-12345"
-                    action="tel:+919876543210"
-                 />
-                 <ContactItem 
-                    icon={Mail} 
-                    title="Email Support" 
-                    value="hello@cginfra.com" 
-                    subValue="sales@cginfra.com"
-                    action="mailto:hello@cginfra.com"
-                 />
-                 <ContactItem 
-                    icon={MapPin} 
-                    title="Head Office" 
-                    value="2nd Floor, Bottle House," 
-                    subValue="Shankar Nagar, Raipur (C.G.)"
-                 />
-                 <ContactItem 
-                    icon={Clock} 
-                    title="Office Hours" 
-                    value="Mon - Sat: 10:00 AM - 7:00 PM" 
-                    subValue="Sunday Closed"
-                 />
+                 <ContactItem icon={Phone} title="Call Us Directly" value="+91 98765-43210" subValue="+91 70000-12345" action="tel:+919876543210" />
+                 <ContactItem icon={Mail} title="Email Support" value="hello@cginfra.com" subValue="sales@cginfra.com" action="mailto:hello@cginfra.com" />
+                 <ContactItem icon={MapPin} title="Head Office" value="2nd Floor, Bottle House," subValue="Shankar Nagar, Raipur (C.G.)" />
+                 <ContactItem icon={Clock} title="Office Hours" value="Mon - Sat: 10:00 AM - 7:00 PM" subValue="Sunday Closed" />
                </div>
 
-               {/* WhatsApp Button */}
                <div className="mt-10 pt-8 border-t border-gray-800">
                   <a href="https://wa.me/919876543210" target="_blank" className="flex items-center justify-center gap-3 w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-green-500/30">
                     <MessageCircle size={24} /> Chat on WhatsApp
@@ -105,7 +79,7 @@ export default function ContactPage() {
             </div>
           </motion.div>
 
-          {/* RIGHT: Modern Form */}
+          {/* RIGHT: Form */}
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -164,42 +138,25 @@ export default function ContactPage() {
               </form>
             )}
           </motion.div>
-
         </div>
       </section>
 
       {/* --- MAP SECTION --- */}
       <section className="w-full h-[400px] bg-gray-200 relative grayscale hover:grayscale-0 transition-all duration-700">
         <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d118983.65581977717!2d81.5649938833908!3d21.26197287714243!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a28dda23be28229%3A0x163ee1204498e21e!2sRaipur%2C%20Chhattisgarh!5e0!3m2!1sen!2sin!4v1714900000000!5m2!1sen!2sin" 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d118943.34211186852!2d82.06206018395562!3d22.08833076135111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a280b13576f332d%3A0x6d9f8e434e35794!2sBilaspur%2C%20Chhattisgarh!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin" 
           width="100%" 
           height="100%" 
           style={{ border: 0 }} 
           allowFullScreen="" 
           loading="lazy" 
-          referrerPolicy="no-referrer-when-downgrade"
           className="w-full h-full"
         ></iframe>
-        
-        {/* Overlay Card on Map */}
-        <div className="absolute bottom-6 left-6 md:left-20 bg-white p-4 rounded-xl shadow-2xl max-w-xs hidden md:block">
-           <div className="flex items-center gap-3">
-              <div className="bg-orange-100 p-2 rounded-lg text-orange-600">
-                <Building size={20} />
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 text-sm">Visit our Office</p>
-                <p className="text-xs text-gray-500">bilaspur Chhattisgarh</p>
-              </div>
-           </div>
-        </div>
       </section>
-
     </main>
   );
 }
 
-// Helper Component for Info Items
 function ContactItem({ icon: Icon, title, value, subValue, action }) {
   const Content = () => (
     <div className="flex items-start gap-4 group cursor-pointer">
@@ -213,6 +170,5 @@ function ContactItem({ icon: Icon, title, value, subValue, action }) {
       </div>
     </div>
   );
-
-  return action ? <a href={action}>{Content()}</a> : Content();
+  return action ? <a href={action}>{Content()}</a> : <div className="flex items-start gap-4">{Content()}</div>;
 }
