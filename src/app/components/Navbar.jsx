@@ -1,5 +1,5 @@
 "use client";
-export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,33 +14,27 @@ import LoginPopup from "./LoginPopup";
 import SearchBarWrapper from "./SearchBarWrapper";
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  // ✅ FIX 1: status check add kiya taaki build worker ko pata chale data load ho raha hai
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   
-  // 1. STATE HOOKS
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  
-  // Dropdown state for "More"
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  // 2. HELPER FUNCTIONS
   const openLogin = () => { setIsSignupOpen(false); setIsLoginOpen(true); setMenuOpen(false); };
   const openSignup = () => { setIsLoginOpen(false); setIsSignupOpen(true); setMenuOpen(false); };
 
-  // Main Navigation Links
   const navLinks = [
-    { name: "Home", href: "/#home", id: "home" }, // Added slash for proper redirection from other pages
+    { name: "Home", href: "/#home", id: "home" },
     { name: "About", href: "/#about", id: "about" },
     { name: "Services", href: "/#services", id: "services" },
   ];
 
-  // Dropdown Links for "More"
   const moreLinks = [
     { name: "Contact Support", href: "/contact" },
     { name: "Privacy Policy", href: "/privacy-policy" },
@@ -48,9 +42,6 @@ export default function Navbar() {
     { name: "Report Fraud", href: "/fraud-alert" },
   ];
 
-  // 3. EFFECT HOOKS
-  
-  // ✅ FIX: Close Menu & Search automatically when route changes (e.g. going to /pg or /land)
   useEffect(() => {
     setMenuOpen(false);
     setSearchOpen(false);
@@ -58,32 +49,33 @@ export default function Navbar() {
   }, [pathname]);
 
   useEffect(() => {
-    if (menuOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
+    // ✅ FIX 2: document check for SSR safety
+    if (typeof document !== 'undefined') {
+      if (menuOpen) document.body.style.overflow = 'hidden';
+      else document.body.style.overflow = 'unset';
+    }
   }, [menuOpen]);
 
-  // Scroll Handler
   useEffect(() => {
+    // ✅ FIX 3: window check for Build worker safety
     if (typeof window === 'undefined') return;
     
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
       const scrollPosition = window.scrollY + 100; 
 
-      navLinks.forEach((link) => {
-        // Only run scroll spy on homepage
-        if (pathname === "/") {
-            const sectionId = link.id;
-            const section = document.getElementById(sectionId);
-            if (section) {
-              const sectionTop = section.offsetTop;
-              const sectionHeight = section.offsetHeight;
-              if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                setActiveSection(sectionId);
-              }
+      if (pathname === "/") {
+        navLinks.forEach((link) => {
+          const section = document.getElementById(link.id);
+          if (section) {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+              setActiveSection(link.id);
             }
-        }
-      });
+          }
+        });
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -126,7 +118,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* 2. CENTER LINKS (Desktop Only) */}
+          {/* 2. CENTER LINKS */}
           <nav className="hidden lg:flex items-center gap-1 bg-gray-100/50 p-1.5 rounded-full border border-gray-200/40">
              {navLinks.map((item) => {
                const isActive = activeSection === item.id && pathname === "/";
@@ -151,7 +143,6 @@ export default function Navbar() {
                );
              })}
 
-             {/* --- DESKTOP MORE DROPDOWN --- */}
              <div 
                 className="relative group"
                 onMouseEnter={() => setIsMoreOpen(true)}
@@ -189,28 +180,25 @@ export default function Navbar() {
 
           {/* 3. RIGHT ACTIONS */}
           <div className="flex items-center gap-2 md:gap-4 z-10">
-            
-            {/* DESKTOP SEARCH */}
             <div className="hidden md:flex items-center">
               <SearchBarWrapper variant="desktop" />
             </div>
 
-            {/* MOBILE SEARCH ICON - FIX: Close Menu if Search opens */}
             <button
               onClick={() => {
                 setSearchOpen(!searchOpen);
-                setMenuOpen(false); // ✅ Force close menu
+                setMenuOpen(false); 
               }}
               className={`md:hidden p-2 rounded-full transition-colors ${searchOpen ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}
             >
               {searchOpen ? <X size={22} strokeWidth={2.5} /> : <Search size={22} strokeWidth={2.5} />}
             </button>
 
-            {/* --- AUTH BUTTONS (Desktop) --- */}
-            {session ? (
+            {/* ✅ FIX 4: Status check for Session Rendering */}
+            {status === "authenticated" ? (
               <Link href="/profile" className="hidden md:block relative group ml-2">
-                <div className="w-10 h-10 rounded-full bg-blue-600 border-2 border-white shadow-md overflow-hidden transition-transform transform group-hover:scale-110 flex items-center justify-center">
-                   {session.user?.image ? (
+                <div className="w-10 h-10 rounded-full bg-blue-600 border-2 border-white shadow-md overflow-hidden transition-transform transform group-hover:scale-110 flex items-center justify-center relative">
+                   {session?.user?.image ? (
                      <Image 
                        src={session.user.image} 
                        alt="Profile" 
@@ -223,17 +211,16 @@ export default function Navbar() {
                    )}
                 </div>
               </Link>
-            ) : (
+            ) : status !== "loading" && (
               <button onClick={openSignup} className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-all duration-300">
                 Sign Up <FiArrowRight />
               </button>
             )}
 
-            {/* MOBILE MENU TOGGLE - FIX: Close Search if Menu opens */}
             <button 
                 onClick={() => {
                     setMenuOpen(true);
-                    setSearchOpen(false); // ✅ Force close search
+                    setSearchOpen(false);
                 }} 
                 className="lg:hidden p-2 text-gray-800 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-xl active:scale-90 transition-all"
             >
@@ -242,7 +229,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* --- MOBILE FLOATING SEARCH BAR --- */}
+        {/* MOBILE FLOATING SEARCH BAR */}
         <AnimatePresence>
           {searchOpen && (
             <motion.div
@@ -256,24 +243,21 @@ export default function Navbar() {
           )}
         </AnimatePresence>
 
-        {/* --- MOBILE MENU DRAWER --- */}
+        {/* MOBILE MENU DRAWER */}
         <AnimatePresence>
           {menuOpen && (
             <>
-              {/* BACKDROP */}
               <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setMenuOpen(false)}
                 className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] lg:hidden"
               />
               
-              {/* DRAWER PANEL */}
               <motion.div
                 initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
                 className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white z-[110] shadow-2xl flex flex-col lg:hidden"
               >
-                {/* DRAWER HEADER */}
                 <div className="flex items-center justify-between p-5 border-b border-gray-100">
                   <span className="text-lg font-bold text-gray-900">Menu</span>
                   <button onClick={() => setMenuOpen(false)} className="p-2 text-gray-500 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full transition-colors">
@@ -281,10 +265,8 @@ export default function Navbar() {
                   </button>
                 </div>
 
-                {/* DRAWER CONTENT */}
                 <div className="flex-1 overflow-y-auto p-5 flex flex-col">
                   <nav className="flex flex-col gap-2">
-                    {/* Standard Links */}
                     {navLinks.map((item) => (
                       <Link
                         key={item.name} href={item.href}
@@ -300,7 +282,6 @@ export default function Navbar() {
                       </Link>
                     ))}
 
-                    {/* MOBILE ACCORDION (Fixed Layout) */}
                     <div className="mt-2 pt-2 border-t border-gray-100">
                         <button 
                             onClick={() => setIsMoreOpen(!isMoreOpen)}
@@ -334,7 +315,6 @@ export default function Navbar() {
                     </div>
                   </nav>
 
-                  {/* BOTTOM AUTH SECTION */}
                   <div className="mt-auto pt-6 border-t border-gray-100 space-y-4">
                     {session ? (
                       <div className="space-y-3">
