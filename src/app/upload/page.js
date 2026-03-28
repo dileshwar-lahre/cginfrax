@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import React, { useState } from 'react';
 import { useSession } from "next-auth/react";
 import { Home, Map, Users, BedDouble, Lock, X, CheckCircle, Camera, ChevronRight, IndianRupee, MapPin, AlignLeft } from 'lucide-react';

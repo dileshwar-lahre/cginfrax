@@ -1,5 +1,5 @@
 "use client";
-
+export const dynamic = "force-dynamic";
 import { SessionProvider, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import PhonePromptPopup from "./PhonePromptPopup";

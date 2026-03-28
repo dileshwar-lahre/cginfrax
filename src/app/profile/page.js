@@ -1,8 +1,5 @@
 "use client";
-
-// Ye line build fail hone se bachayegi
 export const dynamic = "force-dynamic";
-
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -184,7 +181,7 @@ export default function ProfilePage() {
                                 <div className="p-5 flex-1 flex flex-col">
                                     <div className="flex justify-between items-start mb-2">
                                         <h3 className="font-bold text-lg text-gray-900 truncate flex-1 pr-2" title={prop.title}>{prop.title}</h3>
-                                        <span className="text-blue-600 font-black whitespace-nowrap">₹ {Number(prop.price || 0).toLocaleString('en-IN')}</span>
+                                        <span className="text-blue-600 font-black whitespace-nowrap">₹ {prop.price?.toLocaleString('en-IN')}</span>
                                     </div>
                                     
                                     <p className="text-gray-500 text-sm flex items-center gap-1 mb-4">

@@ -14,10 +14,7 @@ const outfit = Outfit({
 
 export const metadata = {
   metadataBase: new URL('https://www.cginfrax.com'),
-  title: {
-    default: "CG INFRAX - Buy, Rent, Sell Properties in Chhattisgarh",
-    template: "%s | CG INFRAX"
-  },
+  title: "CG INFRAX - Buy, Rent, Sell Properties in Chhattisgarh",
   description: "Find your perfect property in Chhattisgarh. Raipur, Bilaspur, Durg.",
 };
 
@@ -25,10 +22,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${outfit.variable} font-sans antialiased bg-[#FCFCFC]`}>
-        {/* AuthProvider wraps everything but children go inside Suspense */}
         <AuthProvider>
-          <Topbar />
-          <PhoneSearchBar />
+          {/* ✅ Navbar/Searchbar ko bhi Suspense ke andar dalo kyunki inme useSearchParams ho sakta hai */}
+          <Suspense fallback={null}>
+            <Topbar />
+            <PhoneSearchBar />
+          </Suspense>
           
           <main>
             <Suspense fallback={
