@@ -1,43 +1,27 @@
-import { Outfit } from "next/font/google";
-import "./globals.css";
-import Topbar from "./components/Topbar";
-import PhoneSearchBar from "./components/Phonesearchbar";
-import Footer from "./components/Footer";
-import AuthProvider from "./components/AuthProvider";
-import { Suspense } from "react";
+// Pehle ek naya component banao layout file ke upar hi
+function ClientWrapper({ children }) {
+  const [mounted, setMounted] = typeof window !== 'undefined' 
+    ? [true, null] 
+    : [false, null]; // Build time par false rahega
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
-  display: "swap",
-});
+  if (!mounted) {
+    return <>{children}</>; // Build ke waqt bina Auth ke render hoga
+  }
 
-export const metadata = {
-  metadataBase: new URL('https://www.cginfrax.com'),
-  title: "CG INFRAX - Properties in Chhattisgarh",
-  description: "Buy, Rent, Sell Properties in Raipur, Bilaspur, Durg.",
-};
+  return <AuthProvider>{children}</AuthProvider>;
+}
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} font-sans antialiased`}>
-        <AuthProvider>
-          {/* ✅ Ye Suspense Navbar aur Searchbar ke errors ko rok lega */}
+      <body>
+        <ClientWrapper>
           <Suspense fallback={null}>
-            <Topbar />
-            <PhoneSearchBar />
+            <Navbar />
           </Suspense>
-          
-          <main>
-            {/* ✅ Ye children ke errors ko rok lega */}
-            <Suspense fallback={null}>
-              {children}
-            </Suspense>
-          </main>
-
+          <main>{children}</main>
           <Footer />
-        </AuthProvider>
+        </ClientWrapper>
       </body>
     </html>
   );
