@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react"; // ✅ Added Suspense
 import Image from "next/image";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
@@ -14,7 +14,6 @@ import LoginPopup from "./LoginPopup";
 import SearchBarWrapper from "./SearchBarWrapper";
 
 export default function Navbar() {
-  // ✅ FIX 1: status check add kiya taaki build worker ko pata chale data load ho raha hai
   const { data: session, status } = useSession();
   const pathname = usePathname();
   
@@ -49,7 +48,6 @@ export default function Navbar() {
   }, [pathname]);
 
   useEffect(() => {
-    // ✅ FIX 2: document check for SSR safety
     if (typeof document !== 'undefined') {
       if (menuOpen) document.body.style.overflow = 'hidden';
       else document.body.style.overflow = 'unset';
@@ -57,7 +55,6 @@ export default function Navbar() {
   }, [menuOpen]);
 
   useEffect(() => {
-    // ✅ FIX 3: window check for Build worker safety
     if (typeof window === 'undefined') return;
     
     const handleScroll = () => {
@@ -181,7 +178,10 @@ export default function Navbar() {
           {/* 3. RIGHT ACTIONS */}
           <div className="flex items-center gap-2 md:gap-4 z-10">
             <div className="hidden md:flex items-center">
-              <SearchBarWrapper variant="desktop" />
+              {/* ✅ FIX: Wrapped in Suspense */}
+              <Suspense fallback={<div className="w-32 h-10 bg-gray-100 rounded-full animate-pulse" />}>
+                <SearchBarWrapper variant="desktop" />
+              </Suspense>
             </div>
 
             <button
@@ -194,7 +194,6 @@ export default function Navbar() {
               {searchOpen ? <X size={22} strokeWidth={2.5} /> : <Search size={22} strokeWidth={2.5} />}
             </button>
 
-            {/* ✅ FIX 4: Status check for Session Rendering */}
             {status === "authenticated" ? (
               <Link href="/profile" className="hidden md:block relative group ml-2">
                 <div className="w-10 h-10 rounded-full bg-blue-600 border-2 border-white shadow-md overflow-hidden transition-transform transform group-hover:scale-110 flex items-center justify-center relative">
@@ -224,7 +223,7 @@ export default function Navbar() {
                 }} 
                 className="lg:hidden p-2 text-gray-800 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-xl active:scale-90 transition-all"
             >
-               <FiMenu size={24} />
+                <FiMenu size={24} />
             </button>
           </div>
         </div>
@@ -237,7 +236,10 @@ export default function Navbar() {
               className="w-full bg-white md:hidden overflow-hidden border-b border-gray-100 shadow-sm z-10"
             >
               <div className="p-4 px-6">
-                <SearchBarWrapper variant="mobile" />
+                {/* ✅ FIX: Wrapped in Suspense */}
+                <Suspense fallback={<div className="w-full h-10 bg-gray-100 rounded-lg animate-pulse" />}>
+                  <SearchBarWrapper variant="mobile" />
+                </Suspense>
               </div>
             </motion.div>
           )}

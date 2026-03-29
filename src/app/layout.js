@@ -1,27 +1,47 @@
-// Pehle ek naya component banao layout file ke upar hi
-function ClientWrapper({ children }) {
-  const [mounted, setMounted] = typeof window !== 'undefined' 
-    ? [true, null] 
-    : [false, null]; // Build time par false rahega
+import { Outfit } from "next/font/google";
+import "./globals.css";
+import Topbar from "./components/Topbar";
+import PhoneSearchBar from "./components/Phonesearchbar";
+import Footer from "./components/Footer";
+import AuthProvider from "./components/AuthProvider";
+import { Suspense } from "react";
 
-  if (!mounted) {
-    return <>{children}</>; // Build ke waqt bina Auth ke render hoga
-  }
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
 
-  return <AuthProvider>{children}</AuthProvider>;
-}
+export const metadata = {
+  metadataBase: new URL('https://www.cginfrax.com'),
+  title: {
+    default: "CG INFRAX - Buy, Rent, Sell Properties in Chhattisgarh",
+    template: "%s | CG INFRAX"
+  },
+  description: "Find your perfect property in Chhattisgarh. Raipur, Bilaspur, Durg.",
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <ClientWrapper>
-          <Suspense fallback={null}>
-            <Navbar />
-          </Suspense>
-          <main>{children}</main>
+      <body className={`${outfit.variable} font-sans antialiased bg-[#FCFCFC]`}>
+        {/* AuthProvider wraps everything but children go inside Suspense */}
+        <AuthProvider>
+          <Topbar />
+          <PhoneSearchBar />
+          
+          <main>
+            <Suspense fallback={
+              <div className="h-screen flex items-center justify-center bg-white">
+                <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            }>
+              {children}
+            </Suspense>
+          </main>
+
           <Footer />
-        </ClientWrapper>
+        </AuthProvider>
       </body>
     </html>
   );
