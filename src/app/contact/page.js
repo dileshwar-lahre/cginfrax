@@ -2,7 +2,10 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Clock, Send, MessageCircle, Building, ArrowRight } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, MessageCircle, ArrowRight } from 'lucide-react';
+
+// ✅ BUILD FIX: Next.js ko bol rha hai ki is page ko static render mat kar (Safety Guard)
+export const dynamic = "force-dynamic";
 
 // Animations
 const fadeInUp = {
@@ -16,6 +19,7 @@ export default function ContactPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormStatus('submitting');
+    // Simulate API call
     setTimeout(() => setFormStatus('success'), 2000);
   };
 
@@ -23,7 +27,7 @@ export default function ContactPage() {
     <main className="bg-gray-50 min-h-screen font-sans selection:bg-orange-200 selection:text-orange-800">
 
       {/* --- HERO SECTION --- */}
-      <section className="relative w-full py-20 bg-gray-900 text-center px-6 overflow-hidden">
+      <section className="relative w-full py-24 bg-gray-900 text-center px-6 overflow-hidden">
         <div className="absolute inset-0 opacity-20">
             <div className="absolute right-0 top-0 w-96 h-96 bg-orange-500 rounded-full blur-[120px] translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute left-0 bottom-0 w-96 h-96 bg-blue-600 rounded-full blur-[120px] -translate-x-1/2 translate-y-1/2"></div>
@@ -34,15 +38,14 @@ export default function ContactPage() {
             initial="hidden" animate="visible" variants={fadeInUp}
             className="text-4xl md:text-6xl font-bold text-white mb-6"
           >
-            {/* FIXED: Let's badal kar Let&apos;s kiya */}
-            Let&apos;s Build Your <span className="text-orange-500">Dream</span>
+            Let's Build Your <span className="text-orange-500">Dream</span>
           </motion.h1>
           <motion.p 
             initial="hidden" animate="visible" variants={fadeInUp}
             className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto"
           >
             Chahe naya ghar banana ho ya plot khareedna. Hum ek call ki doori par hain.
-            Raipur • Bhilai • Bilaspur
+            <br /> <span className="text-orange-400 font-bold">Raipur • Bhilai • Bilaspur</span>
           </motion.p>
         </div>
       </section>
@@ -58,10 +61,10 @@ export default function ContactPage() {
              transition={{ delay: 0.2 }}
              className="flex flex-col gap-8"
           >
-            <div className="bg-gray-900 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+            <div className="bg-gray-900 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden border border-white/5">
                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
-               <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                 Contact Info <span className="h-px flex-1 bg-gray-700"></span>
+               <h3 className="text-2xl font-bold mb-8 flex items-center gap-3 text-orange-500">
+                 Contact Info <span className="h-px flex-1 bg-gray-800"></span>
                </h3>
 
                <div className="space-y-8">
@@ -72,7 +75,7 @@ export default function ContactPage() {
                </div>
 
                <div className="mt-10 pt-8 border-t border-gray-800">
-                  <a href="https://wa.me/919876543210" target="_blank" className="flex items-center justify-center gap-3 w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-green-500/30">
+                  <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-green-500/30">
                     <MessageCircle size={24} /> Chat on WhatsApp
                   </a>
                </div>
@@ -132,7 +135,7 @@ export default function ContactPage() {
                   <textarea rows={4} placeholder="Mujhe 1200 sqft plot par ghar banana hai..." className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all resize-none"></textarea>
                 </div>
 
-                <button disabled={formStatus === 'submitting'} className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                <button type="submit" disabled={formStatus === 'submitting'} className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
                   {formStatus === 'submitting' ? 'Sending...' : 'Send Message'} <ArrowRight size={20} />
                 </button>
               </form>
@@ -142,14 +145,15 @@ export default function ContactPage() {
       </section>
 
       {/* --- MAP SECTION --- */}
-      <section className="w-full h-[400px] bg-gray-200 relative grayscale hover:grayscale-0 transition-all duration-700">
+      <section className="w-full h-[450px] bg-gray-200 relative grayscale hover:grayscale-0 transition-all duration-700 border-t border-gray-200">
         <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d118943.34211186852!2d82.06206018395562!3d22.08833076135111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a280b13576f332d%3A0x6d9f8e434e35794!2sBilaspur%2C%20Chhattisgarh!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin" 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m13!1d14876.136896204368!2d81.6578051!3d21.230491!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a28dd18c5049581%3A0xc3f58a36ef01869f!2sRaipur%2C%20Chhattisgarh!5e0!3m2!1sen!2sin!4v1711562000000!5m2!1sen!2sin" 
           width="100%" 
           height="100%" 
           style={{ border: 0 }} 
           allowFullScreen="" 
           loading="lazy" 
+          referrerPolicy="no-referrer-when-downgrade"
           className="w-full h-full"
         ></iframe>
       </section>
@@ -158,17 +162,18 @@ export default function ContactPage() {
 }
 
 function ContactItem({ icon: Icon, title, value, subValue, action }) {
-  const Content = () => (
+  const Card = (
     <div className="flex items-start gap-4 group cursor-pointer">
-      <div className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300 border border-gray-700">
+      <div className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300 border border-gray-700 flex-shrink-0">
         <Icon size={24} />
       </div>
       <div>
         <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">{title}</p>
-        <h4 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors">{value}</h4>
+        <h4 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors leading-tight">{value}</h4>
         {subValue && <p className="text-gray-400 text-sm mt-1">{subValue}</p>}
       </div>
     </div>
   );
-  return action ? <a href={action}>{Content()}</a> : <div className="flex items-start gap-4">{Content()}</div>;
+
+  return action ? <a href={action} className="block">{Card}</a> : <div>{Card}</div>;
 }
