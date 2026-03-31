@@ -1,9 +1,11 @@
-"use client";
-export const dynamic = "force-dynamic";
-import { useEffect, useState, Suspense } from "react";
+'use client';
+export const dynamic = "force-dynamic"; // ✅ Ye build worker ko bypass karega
+
+import React, { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Heart, MapPin, Eye, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 function PropertiesContent() {
   const { data: session } = useSession();
@@ -12,13 +14,18 @@ function PropertiesContent() {
   
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [cityWiseData, setCityWiseData] = useState({ bilaspur: [], raipur: [], others: [] });
+
+  // ✅ Hydration safety: Build worker ko client hooks scan karne se rokta hai
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const search = searchParams.get("search") || "";
   const district = searchParams.get("district") || "";
   const category = searchParams.get("category") || "All";
 
-  // Data Organizer
   const organizeByCity = (props) => {
     const bilaspur = [];
     const raipur = [];
@@ -33,6 +40,8 @@ function PropertiesContent() {
   };
 
   useEffect(() => {
+    if (!mounted) return;
+
     const fetchProperties = async () => {
       setLoading(true);
       try {
@@ -50,12 +59,15 @@ function PropertiesContent() {
         
         if (category && category !== "All") setCityWiseData(organizeByCity(allProps));
         else setCityWiseData({ bilaspur: [], raipur: [], others: allProps });
-      } catch (err) { console.error(err); } finally { setLoading(false); }
+      } catch (err) { 
+        console.error("Fetch Error:", err); 
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetchProperties();
-  }, [search, district, category, searchParams]);
+  }, [search, district, category, searchParams, mounted]);
 
-  // 🔥 LIKE: Isme hum hamesha _id hi bhejenge (Backend security ke liye)
   const handleLike = async (e, propertyId) => {
     e.stopPropagation();
     if (!session) return alert("Pehle Login karo bhai!");
@@ -68,7 +80,8 @@ function PropertiesContent() {
     } catch (err) { console.log(err); }
   };
 
-  if (loading) return (
+  // ✅ Build safety check: Jab tak mount na ho, kuch mat dikhao
+  if (!mounted || loading) return (
     <div className="h-screen flex items-center justify-center bg-[#FAFAFA]">
       <div className="w-16 h-16 border-[6px] border-black border-t-transparent rounded-full animate-spin"></div>
     </div>
@@ -78,48 +91,29 @@ function PropertiesContent() {
     const isLiked = item.likes?.includes(session?.user?.email);
     
     return (
-      <div 
-        // 🔥 AB YE SLUG PE JAYEGA (SEO MAGIC)
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         onClick={() => router.push(`/properties/${item.slug || item._id}`)} 
         className="group relative bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-gray-200 hover:-translate-y-2"
       >
-        {/* IMAGE SECTION */}
         <div className="relative h-72 w-full overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-80"></div>
-          
-          <img 
-            src={item.images[0] || "/no-image.png"} 
-            alt={item.title} 
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
-          />
-          
+          <img src={item.images[0] || "/no-image.png"} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
           <div className="absolute top-5 left-5 z-20">
-            <span className="bg-white/30 backdrop-blur-md border border-white/20 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-              {item.cat || 'Featured'}
-            </span>
+            <span className="bg-white/30 backdrop-blur-md border border-white/20 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">{item.cat || 'Featured'}</span>
           </div>
-
-          <button 
-            onClick={(e) => handleLike(e, item._id)}
-            className="absolute top-5 right-5 z-20 p-3 bg-white/20 backdrop-blur-md border border-white/20 rounded-full hover:bg-white transition-all active:scale-90"
-          >
+          <button onClick={(e) => handleLike(e, item._id)} className="absolute top-5 right-5 z-20 p-3 bg-white/20 backdrop-blur-md border border-white/20 rounded-full hover:bg-white transition-all active:scale-90">
             <Heart size={20} className={isLiked ? "fill-red-500 text-red-500" : "text-white"} />
           </button>
-
           <div className="absolute bottom-6 left-6 z-20">
              <p className="text-gray-300 text-[10px] font-bold uppercase tracking-widest mb-1">Asking Price</p>
-             <p className="text-white text-3xl font-[1000] tracking-tight drop-shadow-lg">
-               ₹{item.price.toLocaleString('en-IN')}
-             </p>
+             <p className="text-white text-3xl font-[1000] tracking-tight drop-shadow-lg">₹{item.price.toLocaleString('en-IN')}</p>
           </div>
         </div>
 
-        {/* CONTENT SECTION */}
         <div className="p-7">
-          <h2 className="text-2xl font-[900] text-gray-900 leading-none mb-3 truncate group-hover:text-blue-600 transition-colors">
-            {item.title}
-          </h2>
-
+          <h2 className="text-2xl font-[900] text-gray-900 leading-none mb-3 truncate group-hover:text-blue-600 transition-colors">{item.title}</h2>
           <div className="flex items-start gap-2 mb-6">
             <MapPin size={18} className="text-red-500 shrink-0 mt-0.5" /> 
             <div>
@@ -127,9 +121,7 @@ function PropertiesContent() {
               <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide">{item.district}</p>
             </div>
           </div>
-
           <div className="h-px bg-gray-50 w-full mb-5"></div>
-
           <div className="flex justify-between items-center">
             <div className="flex gap-3">
                 <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
@@ -141,13 +133,10 @@ function PropertiesContent() {
                    <span className="text-xs font-black text-pink-600 uppercase tracking-wide">{item.likes?.length || 0} Likes</span>
                 </div>
             </div>
-
-            <button className="bg-black text-white p-4 rounded-full shadow-lg group-hover:bg-blue-600 group-hover:scale-110 transition-all duration-300">
-               <ArrowRight size={20} />
-            </button>
+            <button className="bg-black text-white p-4 rounded-full shadow-lg group-hover:bg-blue-600 group-hover:scale-110 transition-all duration-300"><ArrowRight size={20} /></button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -171,13 +160,13 @@ function PropertiesContent() {
     return (
       <div className="space-y-16">
         {cityWiseData.bilaspur.length > 0 && (
-          <div><SectionHeader title={`${catName} in Bilaspur`} /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{cityWiseData.bilaspur.map(p => <PropertyCard key={p._id} item={p} />)}</div></div>
+          <div key="bilaspur"><SectionHeader title={`${catName} in Bilaspur`} /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{cityWiseData.bilaspur.map(p => <PropertyCard key={p._id} item={p} />)}</div></div>
         )}
         {cityWiseData.raipur.length > 0 && (
-          <div><SectionHeader title={`${catName} in Raipur`} /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{cityWiseData.raipur.map(p => <PropertyCard key={p._id} item={p} />)}</div></div>
+          <div key="raipur"><SectionHeader title={`${catName} in Raipur`} /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{cityWiseData.raipur.map(p => <PropertyCard key={p._id} item={p} />)}</div></div>
         )}
         {cityWiseData.others.length > 0 && (
-          <div><SectionHeader title="Other Locations" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{cityWiseData.others.map(p => <PropertyCard key={p._id} item={p} />)}</div></div>
+          <div key="others"><SectionHeader title="Other Locations" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{cityWiseData.others.map(p => <PropertyCard key={p._id} item={p} />)}</div></div>
         )}
       </div>
     );
@@ -204,9 +193,10 @@ function PropertiesContent() {
   );
 }
 
+// ✅ 2. FINAL EXPORT: Suspense Boundary mandatory hai
 export default function PropertiesPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="h-screen flex items-center justify-center font-bold text-gray-400">Loading Premium Listings...</div>}>
       <PropertiesContent />
     </Suspense>
   );

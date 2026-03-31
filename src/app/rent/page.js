@@ -1,5 +1,6 @@
 'use client';
-
+export const dynamic = "force-dynamic"; // ✅ Ye build worker ko bypass karega
+import { useSearchParams } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
