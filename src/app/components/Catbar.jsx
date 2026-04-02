@@ -16,39 +16,55 @@ const Catbar = () => {
   const pathname = usePathname();
 
   return (
-    <div className="flex justify-center items-center py-4">
-      {/* Outer shadow container */}
-      <div className="flex bg-white shadow-lg rounded-2xl px-6 sm:px-8 lg:px-12 py-4 sm:py-5 space-x-6 sm:space-x-10">
-        {categories.map((cat) => (
-          <Link
-            key={cat.href}
-            href={cat.href}
-            className="flex flex-col items-center group"
-          >
-            {/* Icon - fixed uniform size for all */}
-            <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 flex items-center justify-center">
-              <Image
-                src={cat.img}
-                alt={cat.label}
-                width={64}
-                height={64}
-                className="object-contain w-full h-full transition-transform duration-200 group-hover:scale-110"
-                priority
-              />
-            </div>
+    <div className="w-full bg-white/80 backdrop-blur-md sticky top-[64px] z-40 border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="flex justify-center items-center gap-4 sm:gap-12 overflow-x-auto no-scrollbar">
+          {categories.map((cat) => {
+            const isActive = pathname === cat.href;
+            
+            return (
+              <Link
+                key={cat.href}
+                href={cat.href}
+                className="flex flex-col items-center min-w-[70px] group transition-all duration-300"
+              >
+                {/* Icon Container with subtle background for visibility */}
+                <div className={`p-2 rounded-xl transition-all duration-300 ${
+                  isActive 
+                  ? "bg-blue-50 scale-110 shadow-sm" 
+                  : "bg-transparent group-hover:bg-gray-50"
+                }`}>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center relative">
+                    <Image
+                      src={cat.img}
+                      alt={cat.label}
+                      fill
+                      sizes="(max-width: 768px) 40px, 48px"
+                      className={`object-contain transition-transform duration-300 ${
+                        isActive ? "grayscale-0" : "grayscale-[0.3] group-hover:grayscale-0"
+                      }`}
+                      priority
+                    />
+                  </div>
+                </div>
 
-            {/* Label */}
-            <span
-              className={`mt-2 text-sm sm:text-base font-medium ${
-                pathname === cat.href
-                  ? "text-black underline underline-offset-4 decoration-2"
-                  : "text-gray-600 group-hover:text-black"
-              }`}
-            >
-              {cat.label}
-            </span>
-          </Link>
-        ))}
+                {/* Label with Animated Underline */}
+                <div className="relative mt-1 flex flex-col items-center">
+                  <span className={`text-[12px] sm:text-sm font-semibold transition-colors duration-200 ${
+                    isActive ? "text-blue-600" : "text-gray-500 group-hover:text-black"
+                  }`}>
+                    {cat.label}
+                  </span>
+                  
+                  {/* Active Indicator Bar */}
+                  {isActive && (
+                    <div className="h-[3px] w-6 bg-blue-600 rounded-full mt-1" />
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
