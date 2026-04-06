@@ -123,7 +123,7 @@ export default function Footer() {
 
         {/* --- BOTTOM BAR --- */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {currentYear} CG Infra Technologies Pvt Ltd. All rights reserved.</p>
+          <p>© {currentYear} CGInfrax LLP All rights reserved.</p>
           
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5 hover:text-slate-300 transition-colors">
