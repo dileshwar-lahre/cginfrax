@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react"; // ✅ Added Suspense
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
@@ -83,12 +83,13 @@ export default function Navbar() {
 
   return (
     <>
+      {/* ✅ FIX: changed "fixed" to "relative" so it doesn't overlap Catbar in the stack */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed inset-x-0 z-50 flex flex-col items-center transition-all duration-300 ${
-          scrolled ? "top-0 md:top-4" : "top-0 md:top-6"
+        className={`relative w-full z-50 flex flex-col items-center transition-all duration-300 ${
+          scrolled ? "pt-2" : "pt-4"
         }`}
       >
         <div
@@ -103,12 +104,12 @@ export default function Navbar() {
         >
           {/* 1. LOGO */}
           <Link href="/" className="flex items-center gap-2 group z-10">
-            <div className="relative w-56 h-16 md:w-72 md:h-20 overflow-hidden">
+            <div className="relative w-56 h-12 md:w-64 md:h-16 overflow-hidden">
               <Image 
                 src="/images/cginfrax_logo.png" 
                 alt="CGINFRAX Logo" 
                 fill 
-                sizes="(max-width: 768px) 224px, 288px"
+                sizes="(max-width: 768px) 224px, 256px"
                 className="object-contain object-left" 
                 priority 
               />
@@ -178,7 +179,6 @@ export default function Navbar() {
           {/* 3. RIGHT ACTIONS */}
           <div className="flex items-center gap-2 md:gap-4 z-10">
             <div className="hidden md:flex items-center">
-              {/* ✅ FIX: Wrapped in Suspense */}
               <Suspense fallback={<div className="w-32 h-10 bg-gray-100 rounded-full animate-pulse" />}>
                 <SearchBarWrapper variant="desktop" />
               </Suspense>
@@ -228,7 +228,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* MOBILE FLOATING SEARCH BAR */}
+        {/* MOBILE SEARCH BAR ROW */}
         <AnimatePresence>
           {searchOpen && (
             <motion.div
@@ -236,7 +236,6 @@ export default function Navbar() {
               className="w-full bg-white md:hidden overflow-hidden border-b border-gray-100 shadow-sm z-10"
             >
               <div className="p-4 px-6">
-                {/* ✅ FIX: Wrapped in Suspense */}
                 <Suspense fallback={<div className="w-full h-10 bg-gray-100 rounded-lg animate-pulse" />}>
                   <SearchBarWrapper variant="mobile" />
                 </Suspense>

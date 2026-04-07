@@ -2,7 +2,6 @@ import { Outfit } from "next/font/google";
 import "./globals.css"; 
 import { Suspense } from "react";
 import AuthProvider from "./components/AuthProvider"; 
-import Navbar from "./components/Navbar"; 
 import Footer from "./components/Footer";
 
 const outfit = Outfit({
@@ -95,7 +94,6 @@ export default function RootLayout({ children }) {
       <body className={`${outfit.variable} font-sans antialiased bg-[#FCFCFC]`}>
         <AuthProvider>
           <Suspense fallback={null}>
-            <Navbar />
             <main className="min-h-screen">
               {children}
             </main>
